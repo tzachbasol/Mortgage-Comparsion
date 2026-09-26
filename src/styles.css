@@ -1,0 +1,97 @@
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #1c2330;
+  --muted: #667085;
+  --border: #dde1e7;
+  --accent: #1d5fd1;
+  --ok: #137a3d;
+  --bad: #b42318;
+  --warn-bg: #fff7e0;
+  --demo-bg: #fdf0f7;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151b;
+    --card: #1b2029;
+    --text: #e6e9ef;
+    --muted: #98a2b3;
+    --border: #2f3642;
+    --accent: #6ea2ff;
+    --ok: #4ade80;
+    --bad: #f87171;
+    --warn-bg: #3a3017;
+    --demo-bg: #3a1f30;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, 'Segoe UI', Arial, sans-serif;
+  line-height: 1.5;
+}
+.app { max-width: 1100px; margin: 0 auto; padding: 16px; }
+h1 { margin: 0 0 4px; }
+.subtitle, .muted, small { color: var(--muted); }
+small { display: block; font-size: 12px; }
+.db-status { font-size: 14px; margin-top: 4px; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin: 16px 0; }
+.tabs button {
+  background: none; border: none; padding: 10px 14px; cursor: pointer; color: var(--muted);
+  border-bottom: 3px solid transparent; font-size: 15px;
+}
+.tabs button.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.card, .panel {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px;
+}
+.panel summary { cursor: pointer; font-weight: 600; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 10px; }
+.grid .wide { grid-column: 1 / -1; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+label.inline { flex-direction: row; align-items: center; gap: 6px; }
+fieldset { border: 1px solid var(--border); border-radius: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+input, select, textarea {
+  font: inherit; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg); color: var(--text); min-width: 0;
+}
+button {
+  font: inherit; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text);
+  border-radius: 6px; padding: 6px 12px;
+}
+button:disabled { opacity: .5; cursor: default; }
+button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+button.link { border: none; background: none; color: var(--accent); padding: 0; text-decoration: underline; }
+button.link.danger { color: var(--bad); margin-inline-start: 8px; }
+button.remove { align-self: end; }
+button.add { margin: 4px 0 12px; }
+.track-fields { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+.track-fields label { flex: 1 1 140px; }
+.track-result { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 8px; font-size: 14px; }
+.rate-basis.none { color: var(--bad); }
+.rate-basis.manual { color: #b25e09; }
+.checks { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; margin-bottom: 12px; }
+.ok { color: var(--ok); }
+.bad { color: var(--bad); }
+.notice { background: var(--warn-bg); border-radius: 8px; padding: 10px 12px; margin: 8px 0; font-size: 14px; }
+.badge { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 10px; border: 1px solid var(--border); margin-inline-start: 6px; }
+.badge.demo { background: var(--demo-bg); }
+.demo-row { background: var(--demo-bg); }
+.sources { overflow-x: auto; margin-top: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: start; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.thumb { max-width: 120px; max-height: 90px; border-radius: 4px; border: 1px solid var(--border); display: block; margin-top: 4px; }
+q { font-style: italic; display: block; }
+.totals dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin: 0; }
+.totals dt { color: var(--muted); font-size: 13px; }
+.totals dd { margin: 0 0 6px; font-weight: 600; font-size: 18px; }
+.verdict { margin-top: 12px; display: grid; gap: 4px; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+label.file { display: inline-flex; flex-direction: row; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+label.file input { display: none; }
+.record header { margin-bottom: 4px; }
+.record ul { margin: 6px 0; padding-inline-start: 20px; }
+.record-form h4 { margin: 14px 0 4px; }
+.prose li { margin-bottom: 4px; }

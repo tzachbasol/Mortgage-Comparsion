@@ -1,0 +1,56 @@
+[
+  {
+    "id": "demo-1",
+    "source": {
+      "kind": "demo",
+      "channel": "דמו – נתונים מומצאים לבדיקת הממשק בלבד",
+      "postedAt": "2026-09-01",
+      "collectedAt": "2026-09-26",
+      "quote": "רשומה מומצאת. אין להסתמך עליה."
+    },
+    "bank": "בנק דמו א",
+    "stage": "initial",
+    "loanAmount": 1000000,
+    "tracks": [
+      { "type": "prime", "termYears": 30, "primeMargin": -0.5, "amount": 330000 },
+      { "type": "fixed_unlinked", "termYears": 20, "rate": 4.8, "amount": 340000 },
+      { "type": "variable_linked", "termYears": 25, "rate": 3.6, "changeEveryYears": 5, "amount": 330000 }
+    ]
+  },
+  {
+    "id": "demo-2",
+    "source": {
+      "kind": "demo",
+      "channel": "דמו – נתונים מומצאים לבדיקת הממשק בלבד",
+      "postedAt": "2026-08-15",
+      "collectedAt": "2026-09-26",
+      "quote": "רשומה מומצאת. אין להסתמך עליה."
+    },
+    "bank": "בנק דמו ב",
+    "stage": "negotiated",
+    "loanAmount": 1400000,
+    "tracks": [
+      { "type": "prime", "termYears": 28, "primeMargin": -0.7, "amount": 470000 },
+      { "type": "fixed_unlinked", "termYears": 25, "rate": 4.95, "amount": 470000 },
+      { "type": "fixed_linked", "termYears": 20, "rate": 3.4, "amount": 460000 }
+    ]
+  },
+  {
+    "id": "demo-3",
+    "source": {
+      "kind": "demo",
+      "channel": "דמו – נתונים מומצאים לבדיקת הממשק בלבד",
+      "postedAt": "2026-07-20",
+      "collectedAt": "2026-09-26",
+      "quote": "רשומה מומצאת. אין להסתמך עליה."
+    },
+    "bank": "בנק דמו א",
+    "stage": "approved",
+    "loanAmount": 900000,
+    "tracks": [
+      { "type": "prime", "termYears": 30, "primeMargin": -0.6, "amount": 300000 },
+      { "type": "fixed_unlinked", "termYears": 15, "rate": 4.55, "amount": 300000 },
+      { "type": "variable_unlinked", "termYears": 30, "rate": 4.9, "changeEveryYears": 5, "amount": 300000 }
+    ]
+  }
+]
