@@ -19,6 +19,18 @@ describe('validateRecord', () => {
   it('rejects demo records', () => {
     expect(validateRecord({ ...good, source: { ...good.source, kind: 'demo' } })).not.toBeNull();
   });
+  it('accepts a post published exactly 60 days before collection', () => {
+    expect(validateRecord({ ...good, source: { ...good.source, postedAt: '2026-07-04', collectedAt: '2026-09-02' } })).toBeNull();
+  });
+  it('rejects posts older than 60 days at collection time', () => {
+    expect(validateRecord({ ...good, source: { ...good.source, postedAt: '2026-07-03', collectedAt: '2026-09-02' } })).toMatch(/60/);
+  });
+  it('keeps old records valid forever: the window is relative to collectedAt, not today', () => {
+    expect(validateRecord({ ...good, source: { ...good.source, postedAt: '2024-01-01', collectedAt: '2024-01-10' } })).toBeNull();
+  });
+  it('rejects a post dated after its collection', () => {
+    expect(validateRecord({ ...good, source: { ...good.source, postedAt: '2026-09-03' } })).not.toBeNull();
+  });
   it('every committed record in public/data/records.json is valid', () => {
     for (const r of records as unknown[]) expect(validateRecord(r)).toBeNull();
   });
