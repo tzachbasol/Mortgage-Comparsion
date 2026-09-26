@@ -95,3 +95,12 @@ label.file input { display: none; }
 .record ul { margin: 6px 0; padding-inline-start: 20px; }
 .record-form h4 { margin: 14px 0 4px; }
 .prose li { margin-bottom: 4px; }
+.admin-head { display: flex; justify-content: space-between; align-items: center; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 10px 0; }
+.tile { border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+.tile-value { font-size: 26px; font-weight: 700; }
+.tile-label { color: var(--muted); font-size: 13px; }
+.audit-track { border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 8px; }
+.audit-track h4 { margin: 0 0 4px; }
+.src-link { word-break: break-all; direction: ltr; unicode-bidi: embed; }
+.login form { display: flex; flex-direction: column; gap: 10px; max-width: 320px; }

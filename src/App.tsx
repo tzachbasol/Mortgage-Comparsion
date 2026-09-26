@@ -3,15 +3,17 @@ import Builder from './components/Builder';
 import Compare from './components/Compare';
 import Records from './components/Records';
 import Methodology from './components/Methodology';
+import Admin from './components/Admin';
 import { evaluateMix } from './lib/evaluate';
 import { usePersistentState } from './lib/storage';
 import type { CurrentTrack, EconomicAssumptions, MatchSettings, MixTrack, OfferRecord } from './lib/types';
 
-type Tab = 'builder' | 'compare' | 'records' | 'methodology';
+type Tab = 'builder' | 'compare' | 'admin' | 'records' | 'methodology';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'builder', label: 'בניית תמהיל' },
   { id: 'compare', label: 'השוואה למשכנתא שלי' },
+  { id: 'admin', label: '🔒 ביקורת מקורות (אדמין)' },
   { id: 'records', label: 'מאגר הרשומות' },
   { id: 'methodology', label: 'מקורות ומתודולוגיה' },
 ];
@@ -116,6 +118,7 @@ export default function App() {
         {tab === 'records' && (
           <Records records={allRecords} localRecords={localRecords} setLocalRecords={setLocalRecords} includeDemo={settings.includeDemo} />
         )}
+        {tab === 'admin' && <Admin records={allRecords} evaluated={evaluated} assumptions={assumptions} />}
         {tab === 'methodology' && <Methodology />}
       </main>
     </div>
