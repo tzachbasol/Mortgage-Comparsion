@@ -1,6 +1,6 @@
 import type { Match } from '../lib/match';
 import { fmtPct, fmtSigned } from '../lib/storage';
-import { OFFER_STAGE_LABELS, SOURCE_KIND_LABELS } from '../lib/types';
+import { OFFER_STAGE_LABELS, SOURCE_KIND_LABELS, offerDateOf } from '../lib/types';
 
 export default function SourcesPanel({ matches, isPrime }: { matches: Match[]; isPrime: boolean }) {
   return (
@@ -8,7 +8,7 @@ export default function SourcesPanel({ matches, isPrime }: { matches: Match[]; i
       <table>
         <thead>
           <tr>
-            <th>תאריך פרסום</th>
+            <th>תאריך ההצעה</th>
             <th>מקור</th>
             <th>בנק</th>
             <th>שלב</th>
@@ -22,7 +22,10 @@ export default function SourcesPanel({ matches, isPrime }: { matches: Match[]; i
             const src = m.record.source;
             return (
               <tr key={`${m.record.id}-${i}`} className={m.record.origin === 'demo' ? 'demo-row' : ''}>
-                <td>{src.postedAt}</td>
+                <td>
+                  {offerDateOf(m.record)}
+                  {m.record.offerDateBasis === 'stated' && <div className="muted">פורסם {src.postedAt}</div>}
+                </td>
                 <td>
                   <div>{SOURCE_KIND_LABELS[src.kind]}</div>
                   <div className="muted">

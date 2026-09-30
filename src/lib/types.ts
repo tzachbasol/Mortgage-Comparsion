@@ -37,6 +37,9 @@ export const SOURCE_KIND_LABELS: Record<SourceKind, string> = {
 
 export type OfferStage = 'initial' | 'negotiated' | 'approved' | 'signed' | 'unknown';
 
+/** The date used for freshness: offer date when known, otherwise the post date. */
+export const offerDateOf = (r: { offerDate?: string; source: { postedAt: string } }) => r.offerDate ?? r.source.postedAt;
+
 export const OFFER_STAGE_LABELS: Record<OfferStage, string> = {
   initial: 'הצעה ראשונית',
   negotiated: 'אחרי מו"מ',
@@ -77,9 +80,23 @@ export interface RecordSource {
   collectedBy?: string;
 }
 
+export type OfferDateBasis = 'stated' | 'post_date';
+
 export interface OfferRecord {
   id: string;
   source: RecordSource;
+  /**
+   * When the bank gave the offer (YYYY-MM-DD). Rates are only comparable if the offer itself is
+   * recent, so this – not the post date – is what the 120-day rule and the site filters use.
+   */
+  offerDate?: string;
+  /** 'stated': the post says when the offer was given. 'post_date': the post presents it as just received. */
+  offerDateBasis?: OfferDateBasis;
+  /**
+   * Set on records that stay in the database for the audit trail but no longer meet the collection
+   * rules. Excluded records are never used in rates, medians or coverage.
+   */
+  excluded?: { reason: string; since: string };
   bank?: string;
   stage: OfferStage;
   loanAmount?: number;

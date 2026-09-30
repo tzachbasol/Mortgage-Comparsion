@@ -1,0 +1,62 @@
+name: Auto-merge collected records
+
+# The scheduled collection run pushes its records to a collect/<date> branch.
+# If the branch only touches data files and every test passes (including the
+# source and 120-day offer checks in validate.ts), it is merged into main and
+# the site is redeployed. Anything else fails here and is left for a human.
+
+on:
+  push:
+    branches: ['collect/**']
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: auto-merge-collect
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Only data files may change
+        run: |
+          git fetch origin main
+          changed=$(git diff --name-only origin/main...HEAD)
+          echo "$changed"
+          disallowed=$(echo "$changed" | grep -vE '^(public/data/records\.json|public/screenshots/.+|collection/runs/.+\.json|collection/sources\.json)$' || true)
+          if [ -n "$disallowed" ]; then
+            echo "::error::Collection branches may only change data files. Not auto-merging:"
+            echo "$disallowed"
+            exit 1
+          fi
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+      - name: Merge into main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout main
+          git reset --hard origin/main
+          git merge --no-ff "origin/${GITHUB_REF_NAME}" -m "Auto-merge ${GITHUB_REF_NAME} (records passed validation)"
+          npm test
+          git push origin main
+
+      # Pushes made with GITHUB_TOKEN don't trigger other workflows, so start the deploy explicitly.
+      - name: Deploy site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main

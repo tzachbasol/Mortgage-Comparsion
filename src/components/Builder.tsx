@@ -68,7 +68,7 @@ export default function Builder(props: Props) {
             <input type="number" min={0} value={settings.termToleranceYears} onChange={(e) => setSettings({ ...settings, termToleranceYears: num(e.target.value) })} />
           </label>
           <label>
-            רק רשומות מ־X החודשים האחרונים (0 = הכול)
+            רק הצעות מ־X החודשים האחרונים (0 = הכול)
             <input type="number" min={0} value={settings.maxAgeMonths} onChange={(e) => setSettings({ ...settings, maxAgeMonths: num(e.target.value) })} />
           </label>
           <label>

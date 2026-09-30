@@ -26,7 +26,7 @@ const DEFAULT_MIX: MixTrack[] = [
 
 const DEFAULT_SETTINGS: MatchSettings = {
   termToleranceYears: 3,
-  maxAgeMonths: 2,
+  maxAgeMonths: 4,
   bank: '',
   stages: [],
   includeDemo: false,

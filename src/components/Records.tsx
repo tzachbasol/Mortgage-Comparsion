@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { downloadJson, fmtPct, fmtSigned } from '../lib/storage';
-import { OFFER_STAGE_LABELS, SOURCE_KIND_LABELS, TRACK_LABELS, type OfferRecord } from '../lib/types';
+import { OFFER_STAGE_LABELS, SOURCE_KIND_LABELS, TRACK_LABELS, offerDateOf, type OfferRecord } from '../lib/types';
 import { validateRecord } from '../lib/validate';
 import RecordForm from './RecordForm';
 
@@ -70,9 +70,10 @@ export default function Records({ records, localRecords, setLocalRecords, includ
       {visible.map((r) => (
         <article key={`${r.origin}-${r.id}`} className={`card record ${r.origin === 'demo' ? 'demo-row' : ''}`}>
           <header>
-            <b>{r.bank ?? 'בנק לא ידוע'}</b> · {OFFER_STAGE_LABELS[r.stage]} · פורסם {r.source.postedAt}
+            <b>{r.bank ?? 'בנק לא ידוע'}</b> · {OFFER_STAGE_LABELS[r.stage]} · הצעה מ־{offerDateOf(r)} · פורסם {r.source.postedAt}
             {r.origin === 'local' && <span className="badge">מקומי</span>}
             {r.origin === 'demo' && <span className="badge demo">דמו – לא אמיתי</span>}
+            {r.excluded && <span className="badge demo">מוחרגת: {r.excluded.reason}</span>}
             {r.origin === 'local' && (
               <button className="link danger" onClick={() => setLocalRecords((p) => p.filter((x) => x.id !== r.id))}>
                 מחק
