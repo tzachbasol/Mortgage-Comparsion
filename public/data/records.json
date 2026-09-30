@@ -1,1 +1,39 @@
-[]
+[
+  {
+    "id": "hasolidit-2026-09-02-37013",
+    "source": {
+      "kind": "forum_post",
+      "channel": "פורום הסולידית – נדל\"ן",
+      "url": "https://www.hasolidit.com/kehila/threads/%D7%94%D7%90%D7%9D-%D7%9B%D7%93%D7%90%D7%99-%D7%9C%D7%9E%D7%97%D7%96%D7%A8-%D7%A2%D7%9B%D7%A9%D7%99%D7%95-%D7%90%D7%AA-%D7%94%D7%9E%D7%A9%D7%9B%D7%A0%D7%AA%D7%90.37013/",
+      "postedAt": "2026-09-02",
+      "authorLabel": "משתתף בפורום (כותב השרשור)",
+      "quote": "קל\"צ 445,000 ש\"ח ל-72 חודשים, בריבית 4.6% … פריים 200,000 ש\"ח ל-144 חודשים [בתגובה: פריים מינוס 1%] … מל\"צ 665,000 ש\"ח ל-144 חודשים, בריבית 4.68% [בתגובה: משתנה כל 3 שנים]",
+      "collectedAt": "2026-09-30",
+      "collectedBy": "claude"
+    },
+    "stage": "signed",
+    "loanAmount": 1310000,
+    "notes": "המשכנתא נלקחה בספטמבר 2025, כשהפריים היה 5%; הפוסט פורסם ב-02/09/2026. הבנק לא צוין. מרווח המל\"צ מהעוגן מופיע רק בצילום שלא נקרא, ולכן הוזנה הריבית הכוללת שבטקסט.",
+    "tracks": [
+      {
+        "type": "fixed_unlinked",
+        "termYears": 6,
+        "rate": 4.6,
+        "amount": 445000
+      },
+      {
+        "type": "prime",
+        "termYears": 12,
+        "primeMargin": -1.0,
+        "amount": 200000
+      },
+      {
+        "type": "variable_unlinked",
+        "termYears": 12,
+        "rate": 4.68,
+        "changeEveryYears": 3,
+        "amount": 665000
+      }
+    ]
+  }
+]

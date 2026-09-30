@@ -1,0 +1,25 @@
+[
+  {
+    "name": "ספונסר – פורום משכנתאות",
+    "site": "sponser.co.il",
+    "entryUrls": ["https://www.sponser.co.il/forum.php?forumid=20", "https://m.sponser.co.il/forum.php?forumid=20"]
+  },
+  {
+    "name": "תפוז – פורום משכנתאות",
+    "site": "tapuz.co.il",
+    "entryUrls": ["https://www.tapuz.co.il/forums/"],
+    "note": "יש לאתר את פורום המשכנתאות מתוך רשימת הפורומים ולעדכן כאן את הכתובת המדויקת"
+  },
+  {
+    "name": "FXP – פורומי כלכלה ונדל\"ן",
+    "site": "fxp.co.il",
+    "entryUrls": ["https://www.fxp.co.il/"],
+    "note": "יש לאתר את פורום הכלכלה או הנדל\"ן ולעדכן כאן את הכתובת המדויקת"
+  },
+  {
+    "name": "רוטר – פורומי כלכלה",
+    "site": "rotter.net",
+    "entryUrls": ["https://rotter.net/"],
+    "note": "יש לאתר את פורום הכלכלה ולעדכן כאן את הכתובת המדויקת"
+  }
+]
