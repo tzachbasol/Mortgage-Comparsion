@@ -31,6 +31,17 @@ describe('findMatches', () => {
     expect(m.map((x) => x.record.id)).toEqual(['1', '2']);
   });
 
+  it('filters by offer date, not post date', () => {
+    const stale = rec('9', '2026-09-20', [{ type: 'fixed_unlinked', termYears: 20, rate: 4.8 }], { offerDate: '2025-09-01' });
+    const m = findMatches({ type: 'fixed_unlinked', termYears: 20 }, [stale], settings, 5.25, now);
+    expect(m).toHaveLength(0);
+  });
+
+  it('never uses excluded records', () => {
+    const ex = rec('10', '2026-09-20', [{ type: 'fixed_unlinked', termYears: 20, rate: 4.8 }], { excluded: { reason: 'x', since: '2026-09-30' } });
+    expect(findMatches({ type: 'fixed_unlinked', termYears: 20 }, [ex], settings, 5.25, now)).toHaveLength(0);
+  });
+
   it('includes demo records only when asked', () => {
     const m = findMatches({ type: 'fixed_unlinked', termYears: 20 }, records, { ...settings, includeDemo: true }, 5.25, now);
     expect(m.map((x) => x.record.id)).toContain('6');

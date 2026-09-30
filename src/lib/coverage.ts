@@ -31,11 +31,12 @@ export interface CoverageSummary {
   withScreenshot: number;
   withoutUrl: OfferRecord[];
   duplicateUrls: string[];
+  excluded: OfferRecord[];
   byKind: Partial<Record<SourceKind, number>>;
   byChannel: { channel: string; count: number }[];
 }
 
-export const isReal = (r: OfferRecord) => r.origin !== 'demo' && r.source.kind !== 'demo';
+export const isReal = (r: OfferRecord) => r.origin !== 'demo' && r.source.kind !== 'demo' && !r.excluded;
 
 const bucketOf = (years: number) => TERM_BUCKETS.find(([lo, hi]) => years >= lo && years <= hi) ?? TERM_BUCKETS[TERM_BUCKETS.length - 1];
 
@@ -79,6 +80,7 @@ export function summarize(records: OfferRecord[]): CoverageSummary {
     withUrl: real.filter((r) => r.source.url).length,
     withScreenshot: real.filter((r) => r.source.screenshot).length,
     withoutUrl: real.filter((r) => !r.source.url),
+    excluded: records.filter((r) => r.excluded),
     duplicateUrls: [...urlCount].filter(([, n]) => n > 1).map(([u]) => u),
     byKind,
     byChannel: [...channels].map(([channel, count]) => ({ channel, count })).sort((a, b) => b.count - a.count),

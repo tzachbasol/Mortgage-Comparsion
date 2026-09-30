@@ -1,4 +1,4 @@
-import type { MatchSettings, MixTrack, OfferRecord, RecordTrack } from './types';
+import { offerDateOf, type MatchSettings, type MixTrack, type OfferRecord, type RecordTrack } from './types';
 
 export interface Match {
   record: OfferRecord;
@@ -43,10 +43,11 @@ export function findMatches(
 ): Match[] {
   const matches: Match[] = [];
   for (const record of records) {
+    if (record.excluded) continue;
     if (record.origin === 'demo' && !settings.includeDemo) continue;
     if (settings.bank && record.bank !== settings.bank) continue;
     if (settings.stages.length && !settings.stages.includes(record.stage)) continue;
-    if (settings.maxAgeMonths > 0 && monthsBetween(record.source.postedAt, now) > settings.maxAgeMonths) continue;
+    if (settings.maxAgeMonths > 0 && monthsBetween(offerDateOf(record), now) > settings.maxAgeMonths) continue;
     for (const track of record.tracks) {
       if (track.type !== target.type) continue;
       if (
@@ -64,7 +65,7 @@ export function findMatches(
     }
   }
   return matches.sort(
-    (a, b) => a.termDistance - b.termDistance || b.record.source.postedAt.localeCompare(a.record.source.postedAt),
+    (a, b) => a.termDistance - b.termDistance || offerDateOf(b.record).localeCompare(offerDateOf(a.record)),
   );
 }
 

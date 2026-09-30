@@ -21,6 +21,8 @@ export default function RecordForm({ onSave }: { onSave: (r: OfferRecord) => voi
   const [channel, setChannel] = useState('');
   const [url, setUrl] = useState('');
   const [postedAt, setPostedAt] = useState(today());
+  // Empty = the post presents the offer as just received, so the offer date is the post date.
+  const [statedOfferDate, setStatedOfferDate] = useState('');
   const [authorLabel, setAuthorLabel] = useState('');
   const [quote, setQuote] = useState('');
   const [screenshot, setScreenshot] = useState<string | undefined>();
@@ -52,6 +54,8 @@ export default function RecordForm({ onSave }: { onSave: (r: OfferRecord) => voi
         screenshot,
         collectedAt: today(),
       },
+      offerDate: statedOfferDate || postedAt,
+      offerDateBasis: statedOfferDate ? 'stated' : 'post_date',
       bank: bank.trim() || undefined,
       stage,
       loanAmount: optNum(loanAmount),
@@ -90,6 +94,11 @@ export default function RecordForm({ onSave }: { onSave: (r: OfferRecord) => voi
         <label>
           תאריך הפרסום *
           <input type="date" value={postedAt} onChange={(e) => setPostedAt(e.target.value)} />
+        </label>
+        <label>
+          מתי ניתנה ההצעה
+          <input type="date" value={statedOfferDate} onChange={(e) => setStatedOfferDate(e.target.value)} />
+          <small>אם הפוסט מציין מתי ניתנה ההצעה. ריק = הוצגה כהצעה טרייה, ותאריך הפוסט ישמש כתאריך ההצעה.</small>
         </label>
         <label>
           כינוי המפרסם (בלי שם מלא)

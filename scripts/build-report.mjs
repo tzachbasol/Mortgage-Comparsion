@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE_URL = 'https://tzachbasol.github.io/Mortgage-Comparsion/';
 const REPO_URL = 'https://github.com/tzachbasol/Mortgage-Comparsion';
-const WINDOW_DAYS = 60;
+const WINDOW_DAYS = 120;
 
 const TRACK_LABELS = {
   prime: 'פריים',
@@ -44,12 +44,14 @@ const runs = existsSync(runsDir)
 const run = runs[0];
 const prev = runs[1];
 
-/** Median per category over records collected by `asOf` and posted in the 60 days before it. */
+/** Median per category over records collected by `asOf` whose offer was given in the window before it. */
 function categoryMedians(asOf) {
   const from = addDays(asOf, -WINDOW_DAYS);
   const cats = new Map();
   for (const r of records) {
-    if (r.source.collectedAt > asOf || r.source.postedAt < from || r.source.postedAt > asOf) continue;
+    if (r.excluded) continue;
+    const offered = r.offerDate ?? r.source.postedAt;
+    if (r.source.collectedAt > asOf || offered < from || offered > asOf) continue;
     for (const t of r.tracks) {
       const v = trackValue(t);
       if (v === undefined) continue;
@@ -73,7 +75,7 @@ if (!run) {
   body = `
   <section class="empty">
     <h2>עוד לא בוצעה ריצת איסוף</h2>
-    <p>הריצה הראשונה תתעדכן כאן אוטומטית. בכל ריצה נאספים רק פוסטים שפורסמו ב־${WINDOW_DAYS} הימים האחרונים, ורשומות חדשות נכנסות לאתר רק אחרי שמאשרים את ה־PR.</p>
+    <p>הריצה הראשונה תתעדכן כאן אוטומטית. בכל ריצה נאספות רק הצעות שניתנו ב־${WINDOW_DAYS} הימים האחרונים. רשומות שעוברות את כל הבדיקות נכנסות לאתר אוטומטית.</p>
   </section>`;
 } else {
   const added = records.filter((r) => run.added.includes(r.id));
@@ -98,7 +100,7 @@ if (!run) {
       <div>
         <div class="eyebrow">ריצה אחרונה</div>
         <h2>${fmtDate(run.runDate)}</h2>
-        <div class="muted">חלון איסוף: פוסטים מ־${fmtDate(run.windowStart)} עד ${fmtDate(run.runDate)}</div>
+        <div class="muted">חלון איסוף: הצעות מ־${fmtDate(run.windowStart)} עד ${fmtDate(run.runDate)}</div>
       </div>
       <span class="chip ${runCls}">${runLabel}</span>
     </div>
@@ -109,7 +111,7 @@ if (!run) {
       <div><dt>סה"כ במאגר</dt><dd>${records.length}</dd></div>
     </dl>
     <div class="links">
-      ${run.prUrl ? `<a class="btn primary" href="${esc(run.prUrl)}">לאישור הרשומות ב־PR</a>` : ''}
+      ${run.prUrl ? `<a class="btn primary" href="${esc(run.prUrl)}">לשינוי ב־GitHub</a>` : ''}
       <a class="btn" href="${SITE_URL}">לאתר</a>
       <a class="btn" href="${REPO_URL}">לריפו</a>
     </div>
@@ -120,9 +122,9 @@ if (!run) {
     <h3>ממצאים חדשים</h3>
     ${
       added.length
-        ? `<div class="scroll"><table><thead><tr><th>פורסם</th><th>מקור</th><th>בנק</th><th>מסלולים</th><th>קישור</th></tr></thead><tbody>${added
+        ? `<div class="scroll"><table><thead><tr><th>ההצעה ניתנה</th><th>מקור</th><th>בנק</th><th>מסלולים</th><th>קישור</th></tr></thead><tbody>${added
             .map(
-              (r) => `<tr><td class="num">${fmtDate(r.source.postedAt)}</td><td>${esc(r.source.channel)}</td><td>${esc(r.bank ?? '—')}</td><td>${tracksCell(r)}</td><td>${
+              (r) => `<tr><td class="num">${fmtDate(r.offerDate ?? r.source.postedAt)}</td><td>${esc(r.source.channel)}</td><td>${esc(r.bank ?? '—')}</td><td>${tracksCell(r)}</td><td>${
                 r.source.url ? `<a href="${esc(r.source.url)}">לפוסט</a>` : '<span class="muted">אין קישור</span>'
               }</td></tr>`,
             )
@@ -161,11 +163,11 @@ if (!run) {
 
   ${
     runs.length > 1
-      ? `<section><h3>ריצות קודמות</h3><div class="scroll"><table><thead><tr><th>תאריך</th><th>מצב</th><th>חדשות</th><th>נדחו</th><th>PR</th></tr></thead><tbody>${runs
+      ? `<section><h3>ריצות קודמות</h3><div class="scroll"><table><thead><tr><th>תאריך</th><th>מצב</th><th>חדשות</th><th>נדחו</th><th>קישור</th></tr></thead><tbody>${runs
           .slice(1)
           .map((r) => {
             const [l, c] = RUN_STATUS[r.status] ?? [r.status, 'warn'];
-            return `<tr><td class="num">${fmtDate(r.runDate)}</td><td><span class="chip ${c}">${l}</span></td><td class="num">${r.added.length}</td><td class="num">${r.rejected.length}</td><td>${r.prUrl ? `<a href="${esc(r.prUrl)}">PR</a>` : '—'}</td></tr>`;
+            return `<tr><td class="num">${fmtDate(r.runDate)}</td><td><span class="chip ${c}">${l}</span></td><td class="num">${r.added.length}</td><td class="num">${r.rejected.length}</td><td>${r.prUrl ? `<a href="${esc(r.prUrl)}">שינוי</a>` : '—'}</td></tr>`;
           })
           .join('')}</tbody></table></div></section>`
       : ''
@@ -232,7 +234,7 @@ td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 <div class="page" dir="rtl" lang="he">
   <header>
     <h1>דוח איסוף הצעות משכנתא</h1>
-    <div class="muted">נאסף כל יומיים מפורומים בעברית. רשומות נכנסות לאתר רק אחרי אישור ב־PR.</div>
+    <div class="muted">נאסף כל יומיים מפורומים בעברית. רשומות שעוברות את כל הבדיקות נכנסות לאתר אוטומטית.</div>
   </header>
   ${body}
 </div>

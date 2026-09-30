@@ -4,7 +4,7 @@ import { buildCategories, describeTrack, isReal, summarize, type CoverageEntry }
 import type { EvaluatedMix } from '../lib/evaluate';
 import { stats } from '../lib/match';
 import { fmtPct, fmtSigned } from '../lib/storage';
-import { SOURCE_KIND_LABELS, TRACK_LABELS, type EconomicAssumptions, type OfferRecord, type SourceKind } from '../lib/types';
+import { SOURCE_KIND_LABELS, TRACK_LABELS, offerDateOf, type EconomicAssumptions, type OfferRecord, type SourceKind } from '../lib/types';
 
 interface Props {
   records: OfferRecord[];
@@ -120,6 +120,7 @@ function EntriesTable({ entries, isPrime }: { entries: CoverageEntry[]; isPrime:
             <th>קישור למקור</th>
             <th>ערוץ</th>
             <th>סוג</th>
+            <th>ההצעה ניתנה</th>
             <th>פורסם</th>
             <th>בנק</th>
             <th>תקופה</th>
@@ -136,6 +137,10 @@ function EntriesTable({ entries, isPrime }: { entries: CoverageEntry[]; isPrime:
               </td>
               <td>{e.record.source.channel}</td>
               <td>{SOURCE_KIND_LABELS[e.record.source.kind]}</td>
+              <td>
+                {offerDateOf(e.record)}
+                {e.record.offerDateBasis === 'post_date' && <div className="muted">לפי תאריך הפוסט</div>}
+              </td>
               <td>{e.record.source.postedAt}</td>
               <td>{e.record.bank ?? '—'}</td>
               <td>{e.track.termYears}</td>
@@ -289,7 +294,7 @@ function AdminView({ records, evaluated, assumptions, onLogout }: Props & { onLo
         <p className="muted">קטגוריה עם פחות מ־3 רשומות מסומנת באדום: החציון שלה לא אמין.</p>
       </div>
 
-      {(summary.withoutUrl.length > 0 || summary.duplicateUrls.length > 0) && (
+      {(summary.withoutUrl.length > 0 || summary.duplicateUrls.length > 0 || summary.excluded.length > 0) && (
         <div className="card">
           <h3>בעיות איכות</h3>
           {summary.withoutUrl.length > 0 && (
@@ -300,6 +305,19 @@ function AdminView({ records, evaluated, assumptions, onLogout }: Props & { onLo
                   <li key={r.id}>
                     <code>{r.id}</code>: {r.source.channel}, {r.source.postedAt}
                     {r.source.screenshot ? ', יש צילום' : r.source.quote ? ', יש ציטוט בלבד' : ''}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {summary.excluded.length > 0 && (
+            <>
+              <h4>רשומות מוחרגות ({summary.excluded.length})</h4>
+              <p className="muted">נשמרות לתיעוד ולא נכנסות לשום חישוב.</p>
+              <ul>
+                {summary.excluded.map((r) => (
+                  <li key={r.id}>
+                    <SourceLink record={r} /> · <code>{r.id}</code>: {r.excluded!.reason}
                   </li>
                 ))}
               </ul>
