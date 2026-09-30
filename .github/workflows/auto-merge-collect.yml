@@ -3,7 +3,9 @@ name: Auto-merge collected records
 # The scheduled collection run pushes its records to a collect/<date> branch.
 # If the branch only touches data files and every test passes (including the
 # source and 120-day offer checks in validate.ts), it is merged into main and
-# the site is redeployed. Anything else fails here and is left for a human.
+# the site is redeployed. Files dropped into collection/inbox/ are imported
+# record by record with the same validation. Anything else fails here and is
+# left for a human.
 
 on:
   push:
@@ -34,7 +36,7 @@ jobs:
           git fetch origin main
           changed=$(git diff --name-only origin/main...HEAD)
           echo "$changed"
-          disallowed=$(echo "$changed" | grep -vE '^(public/data/records\.json|public/screenshots/.+|collection/runs/.+\.json|collection/sources\.json)$' || true)
+          disallowed=$(echo "$changed" | grep -vE '^(public/data/records\.json|public/screenshots/.+|collection/runs/.+\.json|collection/inbox/.+\.json|collection/sources\.json)$' || true)
           if [ -n "$disallowed" ]; then
             echo "::error::Collection branches may only change data files. Not auto-merging:"
             echo "$disallowed"
@@ -52,7 +54,13 @@ jobs:
           git checkout main
           git reset --hard origin/main
           git merge --no-ff "origin/${GITHUB_REF_NAME}" -m "Auto-merge ${GITHUB_REF_NAME} (records passed validation)"
+          # Records dropped into collection/inbox/ (e.g. by the Claude in Chrome task) are validated
+          # one by one and moved into records.json; rejected ones are listed in the run log.
+          node --experimental-strip-types scripts/import-inbox.mjs
+          git add -A public/data/records.json collection/
+          git diff --cached --quiet || git commit -m "Import collection inbox from ${GITHUB_REF_NAME}"
           npm test
+          npm run build
           git push origin main
 
       # Pushes made with GITHUB_TOKEN don't trigger other workflows, so start the deploy explicitly.

@@ -1,4 +1,4 @@
-import { OFFER_STAGE_LABELS, SOURCE_KIND_LABELS, TRACK_LABELS } from './types';
+import { OFFER_STAGE_LABELS, SOURCE_KIND_LABELS, TRACK_LABELS } from './types.ts';
 
 const isDate = (v: unknown) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
 
