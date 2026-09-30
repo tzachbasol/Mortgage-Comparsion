@@ -1,0 +1,68 @@
+{
+  "runDate": "2026-09-30",
+  "windowStart": "2026-08-01",
+  "status": "partial",
+  "sources": [
+    {
+      "name": "הסולידית – נדל\"ן",
+      "url": "https://www.hasolidit.com/kehila/forums/%D7%A0%D7%93%D7%9C-%D7%9F.28/",
+      "status": "ok",
+      "postsScanned": 3,
+      "offersFound": 1,
+      "note": "נסרקו 3 שרשורי משכנתא מ-60 הימים האחרונים דרך ה-RSS של הפורום"
+    },
+    {
+      "name": "הסולידית – צרכנות פיננסית",
+      "url": "https://www.hasolidit.com/kehila/forums/%D7%A6%D7%A8%D7%9B%D7%A0%D7%95%D7%AA-%D7%A4%D7%99%D7%A0%D7%A0%D7%A1%D7%99%D7%AA.8/",
+      "status": "ok",
+      "postsScanned": 0,
+      "offersFound": 0,
+      "note": "אין שרשורי משכנתא ב-60 הימים האחרונים"
+    },
+    {
+      "name": "תפוז – משכנתאות וייעוץ מיחזור",
+      "url": "https://www.tapuz.co.il/forums/%D7%9E%D7%A9%D7%9B%D7%A0%D7%AA%D7%90%D7%95%D7%AA-%D7%95%D7%99%D7%99%D7%A2%D7%95%D7%A5-%D7%9E%D7%99%D7%97%D7%96%D7%95%D7%A8.1733/",
+      "status": "ok",
+      "postsScanned": 0,
+      "offersFound": 0,
+      "note": "השרשור האחרון נפתח ב-09/06/2026, מחוץ לחלון"
+    },
+    {
+      "name": "ספונסר – פורום משכנתאות",
+      "url": "https://www.sponser.co.il/forum.php?forumid=20",
+      "status": "blocked",
+      "note": "Cloudflare challenge – לא עוקפים"
+    },
+    {
+      "name": "FXP",
+      "url": "https://www.fxp.co.il/",
+      "status": "blocked",
+      "note": "Cloudflare challenge – לא עוקפים"
+    },
+    {
+      "name": "רוטר",
+      "url": "https://rotter.net/",
+      "status": "blocked",
+      "note": "Cloudflare challenge – לא עוקפים"
+    },
+    {
+      "name": "פייסבוק – קבוצות",
+      "status": "blocked",
+      "note": "דורש התחברות"
+    }
+  ],
+  "added": [
+    "hasolidit-2026-09-02-37013"
+  ],
+  "rejected": [
+    {
+      "url": "https://www.hasolidit.com/kehila/threads/37055/",
+      "reason": "הצעה מיד שנייה (\"מכיר מישהו שלקח בדיסקונט\"), ריביות משוערות ('בערך') ובלי תקופות – חסרים נתונים"
+    },
+    {
+      "url": "https://www.hasolidit.com/kehila/threads/36963/",
+      "reason": "דיון על הלוואת גישור, בלי ריביות"
+    }
+  ],
+  "notes": "ריצה ידנית אחרי פתיחת הרשת. הרשומה היחידה משקפת משכנתא שנלקחה בספטמבר 2025."
+}
