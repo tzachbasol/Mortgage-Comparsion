@@ -157,7 +157,7 @@ if (!run) {
       catRows
         ? `<div class="scroll"><table><thead><tr><th>מסלול</th><th>תקופה (שנים)</th><th>רשומות</th><th>חציון</th><th>שינוי מהריצה הקודמת</th></tr></thead><tbody>${catRows}</tbody></table></div>
            <p class="muted small">פחות מ־3 רשומות מסומן באדום: החציון לא אמין. כולל רק רשומות שכבר אושרו ונכנסו למאגר.</p>`
-        : '<p class="muted">אין רשומות מאושרות מ־${WINDOW_DAYS} הימים האחרונים.</p>'
+        : `<p class="muted">אין רשומות מאושרות מ־${WINDOW_DAYS} הימים האחרונים.</p>`
     }
   </section>
 
