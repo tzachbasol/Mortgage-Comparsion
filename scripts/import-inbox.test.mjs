@@ -66,4 +66,11 @@ describe('importPayload', () => {
     expect(r.added.map((x) => x.id)).toEqual(['c']);
     expect(r.run.rejected.map((x) => x.reason)).toEqual(['הפוסט כבר קיים במאגר', 'הפוסט כבר קיים במאגר']);
   });
+
+  it('keeps offers from different banks in the same post, but not the same bank twice', () => {
+    const at = (id, bank) => ({ ...rec(id, 'https://fb/multi'), bank });
+    const r = importPayload([at('leumi', 'לאומי')], { records: [at('mizrahi', 'מזרחי טפחות'), at('leumi-again', 'לאומי')] }, '2026-09-30');
+    expect(r.added.map((x) => x.id)).toEqual(['mizrahi']);
+    expect(r.run.rejected.map((x) => x.reason)).toEqual(['הפוסט כבר קיים במאגר']);
+  });
 });

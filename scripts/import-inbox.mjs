@@ -14,13 +14,18 @@ export const normalizeUrl = (url) => (url ? url.split(/[?#]/)[0].replace(/\/+$/,
 /** Pure merge step, exported for tests. Never modifies or removes existing records. */
 export function importPayload(existing, payload, today) {
   const ids = new Set(existing.map((r) => r.id));
-  const urls = new Set(existing.map((r) => normalizeUrl(r.source?.url)).filter(Boolean));
+  // One post can hold offers from several banks, each its own record, so a duplicate is the same post and the same bank.
+  const postKey = (r) => {
+    const url = normalizeUrl(r.source?.url);
+    return url ? `${url}|${r.bank ?? ''}` : undefined;
+  };
+  const urls = new Set(existing.map(postKey).filter(Boolean));
   const added = [];
   const rejected = [...(payload.run?.rejected ?? [])];
   for (const raw of payload.records ?? []) {
     const rec = { ...raw, source: { collectedAt: today, ...raw.source } };
     const url = rec.source?.url;
-    const key = normalizeUrl(url);
+    const key = postKey(rec);
     let reason = validateRecord(rec);
     if (!reason && ids.has(rec.id)) reason = `מזהה כפול: ${rec.id}`;
     if (!reason && key && urls.has(key)) reason = 'הפוסט כבר קיים במאגר';
