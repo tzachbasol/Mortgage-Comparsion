@@ -38,4 +38,21 @@ describe('importPayload', () => {
     const r = importPayload([], { records: [noDate] }, '2026-09-30');
     expect(r.records[0].source.collectedAt).toBe('2026-09-30');
   });
+
+  it("keeps a late run's own date, but never a future or malformed one", () => {
+    const at = (runDate) => importPayload([], { records: [], run: { runDate } }, '2026-10-09').run.runDate;
+    expect(at('2026-10-01')).toBe('2026-10-01');
+    expect(at('2026-10-20')).toBe('2026-10-09');
+    expect(at('01/10/2026')).toBe('2026-10-09');
+    expect(at(undefined)).toBe('2026-10-09');
+  });
+
+  it('passes the needsReview flag through and still validates it', () => {
+    const flagged = { ...rec('rev', 'https://fb/5'), needsReview: { reason: 'לא ברור שזו הצעת בנק', since: '2026-09-30' } };
+    const broken = { ...rec('bad', 'https://fb/6'), needsReview: { reason: '' } };
+    const r = importPayload([], { records: [flagged, broken] }, '2026-09-30');
+    expect(r.added.map((x) => x.id)).toEqual(['rev']);
+    expect(r.added[0].needsReview.reason).toMatch(/הצעת בנק/);
+    expect(r.run.rejected[0].reason).toMatch(/needsReview/);
+  });
 });

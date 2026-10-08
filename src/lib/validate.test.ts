@@ -13,6 +13,11 @@ const good = {
 const withSource = (patch: object) => ({ ...good, source: { ...good.source, ...patch } });
 
 describe('validateRecord', () => {
+  it('accepts a needsReview flag only with a reason and date', () => {
+    expect(validateRecord({ ...good, needsReview: { reason: 'לא נאמר שזו הצעת בנק', since: '2026-09-02' } })).toBeNull();
+    expect(validateRecord({ ...good, needsReview: { reason: ' ', since: '2026-09-02' } })).toMatch(/needsReview/);
+    expect(validateRecord({ ...good, needsReview: { reason: 'x' } })).toMatch(/needsReview/);
+  });
   it('accepts a well-formed record', () => {
     expect(validateRecord(good)).toBeNull();
   });

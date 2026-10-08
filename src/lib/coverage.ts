@@ -32,18 +32,21 @@ export interface CoverageSummary {
   withoutUrl: OfferRecord[];
   duplicateUrls: string[];
   excluded: OfferRecord[];
+  needsReview: OfferRecord[];
   byKind: Partial<Record<SourceKind, number>>;
   byChannel: { channel: string; count: number }[];
 }
 
 export const isReal = (r: OfferRecord) => r.origin !== 'demo' && r.source.kind !== 'demo' && !r.excluded;
+/** Real records that may feed rates and medians: borderline records wait for the owner's review. */
+export const isUsable = (r: OfferRecord) => isReal(r) && !r.needsReview;
 
 const bucketOf = (years: number) => TERM_BUCKETS.find(([lo, hi]) => years >= lo && years <= hi) ?? TERM_BUCKETS[TERM_BUCKETS.length - 1];
 
 /** Groups every track of every real record into (type × term bucket × reset period) categories. */
 export function buildCategories(records: OfferRecord[], primeRate: number): CoverageCategory[] {
   const map = new Map<string, CoverageCategory>();
-  for (const record of records.filter(isReal)) {
+  for (const record of records.filter(isUsable)) {
     for (const track of record.tracks) {
       const value = trackValue(track, primeRate);
       if (value === undefined) continue;
@@ -81,6 +84,7 @@ export function summarize(records: OfferRecord[]): CoverageSummary {
     withScreenshot: real.filter((r) => r.source.screenshot).length,
     withoutUrl: real.filter((r) => !r.source.url),
     excluded: records.filter((r) => r.excluded),
+    needsReview: real.filter((r) => r.needsReview),
     duplicateUrls: [...urlCount].filter(([, n]) => n > 1).map(([u]) => u),
     byKind,
     byChannel: [...channels].map(([channel, count]) => ({ channel, count })).sort((a, b) => b.count - a.count),

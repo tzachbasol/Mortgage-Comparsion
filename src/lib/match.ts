@@ -43,7 +43,7 @@ export function findMatches(
 ): Match[] {
   const matches: Match[] = [];
   for (const record of records) {
-    if (record.excluded) continue;
+    if (record.excluded || record.needsReview) continue;
     if (record.origin === 'demo' && !settings.includeDemo) continue;
     if (settings.bank && record.bank !== settings.bank) continue;
     if (settings.stages.length && !settings.stages.includes(record.stage)) continue;

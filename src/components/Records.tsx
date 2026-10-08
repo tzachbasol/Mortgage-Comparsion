@@ -74,6 +74,7 @@ export default function Records({ records, localRecords, setLocalRecords, includ
             {r.origin === 'local' && <span className="badge">מקומי</span>}
             {r.origin === 'demo' && <span className="badge demo">דמו – לא אמיתי</span>}
             {r.excluded && <span className="badge demo">מוחרגת: {r.excluded.reason}</span>}
+            {r.needsReview && <span className="badge review">ממתינה לבדיקה: {r.needsReview.reason}</span>}
             {r.origin === 'local' && (
               <button className="link danger" onClick={() => setLocalRecords((p) => p.filter((x) => x.id !== r.id))}>
                 מחק

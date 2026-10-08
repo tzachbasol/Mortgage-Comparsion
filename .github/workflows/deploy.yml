@@ -2,7 +2,8 @@ name: Test & deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    # claude/* branches get the same tests and build before they're merged; only main deploys.
+    branches: [main, 'claude/**']
   pull_request:
   workflow_dispatch:
 

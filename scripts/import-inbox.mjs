@@ -28,8 +28,11 @@ export function importPayload(existing, payload, today) {
     ids.add(rec.id);
     if (url) urls.add(url);
   }
+  // A run that is imported late (e.g. pushed a few days after it ran) keeps its own date, never a future one.
+  const stated = payload.run?.runDate;
+  const runDate = typeof stated === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(stated) && stated <= today ? stated : today;
   const run = {
-    runDate: today,
+    runDate,
     windowStart: payload.run?.windowStart ?? '',
     status: payload.run?.status ?? 'ok',
     sources: payload.run?.sources ?? [],
@@ -51,7 +54,7 @@ function main() {
     const payload = JSON.parse(readFileSync(join(inbox, f), 'utf8'));
     const result = importPayload(records, payload, today);
     records = result.records;
-    const runName = `${today}-${basename(f, '.json')}.json`;
+    const runName = `${result.run.runDate}-${basename(f, '.json')}.json`;
     writeFileSync(join(root, 'collection/runs', runName), JSON.stringify(result.run, null, 2) + '\n');
     rmSync(join(inbox, f));
     console.log(`${f}: imported ${result.added.length}, rejected ${result.run.rejected.length}`);
