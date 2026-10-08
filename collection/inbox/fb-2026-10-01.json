@@ -1,0 +1,634 @@
+{
+  "records": [
+    {
+      "id": "fb-2026-07-19-t8w1",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/26909969332009221",
+        "postedAt": "2026-07-19",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "קיבלתי הצעה של מיחזור משכנתא... סה״כ משכנתא 1,132,000. קבועה לא צמודה - 20 שנה - 390 אלף: 4.5%. משתנה לא צמודה - 20 שנה - 302 אלף: 4.35%. פריים - 21 שנה - 360 אלף - 4.4% (מינוס 0.6). פריים - 20 שנה - 80 אלף - 4.4% (מינוס 0.6)",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-07-19",
+      "offerDateBasis": "post_date",
+      "stage": "initial",
+      "loanAmount": 1132000,
+      "notes": "מיחזור. במסלול המשתנה הלא צמוד תדירות השינוי לא צוינה.",
+      "tracks": [
+        {
+          "type": "fixed_unlinked",
+          "termYears": 20,
+          "rate": 4.5,
+          "amount": 390000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 20,
+          "rate": 4.35,
+          "amount": 302000
+        },
+        {
+          "type": "prime",
+          "termYears": 21,
+          "primeMargin": -0.6,
+          "amount": 360000
+        },
+        {
+          "type": "prime",
+          "termYears": 20,
+          "primeMargin": -0.6,
+          "amount": 80000
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-09-09-r2c5",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27537858172553664",
+        "postedAt": "2026-09-09",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "הצעה שקיבלתי מיועצת משכנתאות, דירה ראשונה, משכנתא של 1.7, נראה לי הזוי. מה דעתכם?",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-09-09",
+      "offerDateBasis": "post_date",
+      "stage": "initial",
+      "loanAmount": 1500000,
+      "notes": "מתוך צילום מסך: 'אישור עקרוני א' - סל מוצע' (שם הבנק לא נראה). בטבלה הסכום הכולל 1,500,000 (בפוסט כתוב 1.7). המשתנה הלא צמודה מתעדכנת כל 18 חודשים (F+1.10). הפריים P-0.60 (ריבית 4.15%).",
+      "tracks": [
+        {
+          "type": "fixed_unlinked",
+          "termYears": 25,
+          "rate": 4.72,
+          "amount": 578000
+        },
+        {
+          "type": "prime",
+          "termYears": 30,
+          "primeMargin": -0.6,
+          "amount": 700000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 30,
+          "rate": 4.48,
+          "changeEveryYears": 1.5,
+          "amount": 222000
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-09-03-k1p8",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27462745390064943",
+        "postedAt": "2026-09-03",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "אשמח לקבל חווד רביות: קלצ 221 אלף - 4.42 - ל 12 שנים, מלצ אגח 240 אלף - 4.38 - 30 שנים, פריים -0.85 - 200 אלף - 30 שנה",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-09-03",
+      "offerDateBasis": "post_date",
+      "stage": "unknown",
+      "loanAmount": 660000,
+      "notes": "דירת מחיר למשתכן (שווי 1.65 מיליון). לא נכתב במפורש שהריביות התקבלו מבנק. מומלץ לבדוק ידנית. במל\"צ תדירות השינוי לא צוינה.",
+      "tracks": [
+        {
+          "type": "fixed_unlinked",
+          "termYears": 12,
+          "rate": 4.42,
+          "amount": 221000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 30,
+          "rate": 4.38,
+          "amount": 240000
+        },
+        {
+          "type": "prime",
+          "termYears": 30,
+          "primeMargin": -0.85,
+          "amount": 200000
+        }
+      ],
+      "needsReview": {
+        "reason": "לא נכתב במפורש שהריביות התקבלו מבנק",
+        "since": "2026-10-09"
+      }
+    },
+    {
+      "id": "fb-2026-08-03-m5v2",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27073601478979338",
+        "postedAt": "2026-08-03",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "מתכננים לקחת משכנתא של 1,000,000 ש\"ח בתמהיל: 1/3 קבועה ל-10 שנים, 2/3 פריים ל-30 שנים. קיבלנו שתי הצעות: בנק הבינלאומי - קבועה: 4.46%, פריים: פריים מינוס 0.75%",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-08-03",
+      "offerDateBasis": "post_date",
+      "bank": "הבינלאומי",
+      "stage": "initial",
+      "loanAmount": 1000000,
+      "notes": "מסלול 'קבועה' של 10 שנים ב-4.46% הושמט, כי לא צוין אם הוא צמוד או לא צמוד. הפריים הוא כ-2/3 מהסכום.",
+      "tracks": [
+        {
+          "type": "prime",
+          "termYears": 30,
+          "primeMargin": -0.75
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-08-03-n7c4",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27073601478979338",
+        "postedAt": "2026-08-03",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "קיבלנו שתי הצעות... בנק לאומי - קבועה: 4.07%, פריים: פריים מינוס 0.55%",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-08-03",
+      "offerDateBasis": "post_date",
+      "bank": "לאומי",
+      "stage": "initial",
+      "loanAmount": 1000000,
+      "notes": "ההצעה השנייה באותו פוסט. מסלול 'קבועה' של 10 שנים ב-4.07% הושמט, כי לא צוין אם הוא צמוד או לא צמוד.",
+      "tracks": [
+        {
+          "type": "prime",
+          "termYears": 30,
+          "primeMargin": -0.55
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-06-10-w8e1",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/26475870818752410",
+        "postedAt": "2026-06-10",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "אישור עקרוני. איך התמהיל? ומה אפשר לשפר?",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-06-10",
+      "offerDateBasis": "post_date",
+      "stage": "initial",
+      "loanAmount": 1000000,
+      "notes": "מתוך צילום מסך של 'סל מוצע' (שם הבנק מושחר). המשתנה הצמודה מתעדכנת כל 3 שנים על בסיס אג\"ח צמוד +1.20. ריבית כוללת חזויה 5.37%.",
+      "tracks": [
+        {
+          "type": "fixed_unlinked",
+          "termYears": 30,
+          "rate": 4.71,
+          "amount": 167500
+        },
+        {
+          "type": "variable_linked",
+          "termYears": 30,
+          "rate": 3.01,
+          "changeEveryYears": 3,
+          "amount": 665000
+        },
+        {
+          "type": "fixed_linked",
+          "termYears": 30,
+          "rate": 3.18,
+          "amount": 167500
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-08-13-c4y9",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27206870348985783",
+        "postedAt": "2026-08-13",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "לקחתי אישור עקרוני מלאומי וממזרחי, על מה אני צריכה להסתכל ומה הכי חשוב ואיך אני יודעת מה טוב יותר מאצל מי לקחת משכנתא",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-08-13",
+      "offerDateBasis": "post_date",
+      "bank": "לאומי",
+      "stage": "initial",
+      "loanAmount": 1320000,
+      "notes": "מתוך צילום מסך (לאומי למשכנתאות). מסלול 'זכאות מסובסד' של 180,530 ש\"ח ל-30 שנה ב-2.72% הושמט כי סוג המסלול לא צוין. ריבית כוללת חזויה 5.18%. מ\"צ: עוגן +1.10. מל\"צ: עוגן +0.99.",
+      "tracks": [
+        {
+          "type": "variable_linked",
+          "termYears": 30,
+          "rate": 2.77,
+          "changeEveryYears": 2,
+          "amount": 370000
+        },
+        {
+          "type": "fixed_linked",
+          "termYears": 30,
+          "rate": 3.1,
+          "amount": 269470
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 30,
+          "rate": 4.37,
+          "changeEveryYears": 2,
+          "amount": 300000
+        },
+        {
+          "type": "prime",
+          "termYears": 30,
+          "primeMargin": -0.65,
+          "amount": 200000
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-08-13-d6r3",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27206870348985783",
+        "postedAt": "2026-08-13",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "לקחתי אישור עקרוני מלאומי וממזרחי, על מה אני צריכה להסתכל ומה הכי חשוב ואיך אני יודעת מה טוב יותר מאצל מי לקחת משכנתא",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-07-27",
+      "offerDateBasis": "stated",
+      "bank": "מזרחי טפחות",
+      "stage": "initial",
+      "loanAmount": 1320000,
+      "notes": "מתוך צילום מסך: 'אישור עקרוני ב' - סל מוצע', ותאריך המסמך 27-07-2026 מופיע בכותרת התחתונה. מסלול 'מוכוונת (זכאות) - אישית' של 198,590 ש\"ח ב-2.72% הושמט כי סוג המסלול לא סטנדרטי. במשתנה הצמודה (עוגן אג\"ח צמודות ל-2.5 שנים, +1.35%) תדירות השינוי לא צוינה במפורש. ריבית כוללת חזויה 5.38%.",
+      "tracks": [
+        {
+          "type": "fixed_linked",
+          "termYears": 30,
+          "rate": 3.17,
+          "amount": 251410
+        },
+        {
+          "type": "variable_linked",
+          "termYears": 30,
+          "rate": 2.89,
+          "amount": 870000
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-08-04-g9s5",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "Finwiz - קבוצת המשכנתאות ונדלן",
+        "url": "https://www.facebook.com/groups/144679486171484/posts/2036379043668176",
+        "postedAt": "2026-08-04",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "היי קיבלתי הצעה למשכנתא אשמח לשמוע את דעתכם",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-07-30",
+      "offerDateBasis": "stated",
+      "stage": "initial",
+      "loanAmount": 1000000,
+      "notes": "מתוך צילום מסך של מסמך 'פירוט נתוני הרכב/י הלוואה - מוצע'. שם הקובץ 'CamScanner 30.07.2026', ומשם תאריך ההצעה. שם הבנק לא נראה. מל\"צ: עוגן 3.34 ותוספת 0.95, עדכון כל 24 חודשים.",
+      "tracks": [
+        {
+          "type": "fixed_unlinked",
+          "termYears": 20,
+          "rate": 4.67,
+          "amount": 350000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 30,
+          "rate": 4.29,
+          "changeEveryYears": 2,
+          "amount": 650000
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-06-04-p1b7",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "Finwiz - קבוצת המשכנתאות ונדלן",
+        "url": "https://www.facebook.com/groups/144679486171484/posts/1988064658499615",
+        "postedAt": "2026-06-04",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "לקראת חתימה על המשכנתא.. אחוז מימון- 61%. קלצ-330 אלף(240 חודשים)- 4.45, קלצ- 150 אלף (288 חודשים)- 4.48, מלצ כל 60- 365 אלף (360 חודשים)-4.53, מלצ כל 24- 265 אלף (360 חודשים)-4.52, פריים מינוס 0.8- 300 אלף (360 חודשים)- 4.45",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-06-04",
+      "offerDateBasis": "post_date",
+      "stage": "negotiated",
+      "loanAmount": 1410000,
+      "notes": "LTV 61%. הפוסט פורסם 119 יום לפני היום, כלומר על גבול החלון. אותו/ה כותב/ת פרסם/ה ב-20/07 את המשכנתא שנחתמה (fb-2026-07-20-s2k8).",
+      "tracks": [
+        {
+          "type": "fixed_unlinked",
+          "termYears": 20,
+          "rate": 4.45,
+          "amount": 330000
+        },
+        {
+          "type": "fixed_unlinked",
+          "termYears": 24,
+          "rate": 4.48,
+          "amount": 150000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 30,
+          "rate": 4.53,
+          "changeEveryYears": 5,
+          "amount": 365000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 30,
+          "rate": 4.52,
+          "changeEveryYears": 2,
+          "amount": 265000
+        },
+        {
+          "type": "prime",
+          "termYears": 30,
+          "primeMargin": -0.8,
+          "amount": 300000
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-07-30-e5t2",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "Finwiz - קבוצת המשכנתאות ונדלן",
+        "url": "https://www.facebook.com/groups/144679486171484/posts/2033420627297351",
+        "postedAt": "2026-07-30",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "זוג שמכניס 30 נטו בחודש, מעדיפים החזר עד 10,000 ₪. דירה בעלות 3,580,000 ₪, משכנתא בגובה 2,050,000 ₪. זה התמהיל שאנחנו רוצים ללכת עליו.",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-07-30",
+      "offerDateBasis": "post_date",
+      "stage": "initial",
+      "loanAmount": 2050000,
+      "notes": "מתוך צילום מסך: 'אישור עקרוני א' - סל מוצע' (שם הבנק לא נראה). LTV כ-57%. המל\"צ מתעדכנת כל 18 חודשים (F+1.12). הפריים P-0.50 (4.5%). ריבית כוללת חזויה 5.06%.",
+      "tracks": [
+        {
+          "type": "fixed_unlinked",
+          "termYears": 30,
+          "rate": 4.5,
+          "amount": 684000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 30,
+          "rate": 4.5,
+          "changeEveryYears": 1.5,
+          "amount": 682000
+        },
+        {
+          "type": "prime",
+          "termYears": 30,
+          "primeMargin": -0.5,
+          "amount": 684000
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-09-13-x4h6",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "Finwiz - קבוצת המשכנתאות ונדלן",
+        "url": "https://www.facebook.com/groups/144679486171484/posts/2069379383701475",
+        "postedAt": "2026-09-13",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "אשמח לחוות דעת על ההצעה הזו:",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-09-13",
+      "offerDateBasis": "post_date",
+      "stage": "initial",
+      "loanAmount": 1000000,
+      "notes": "מתוך צילום מסך של 'סל מוצע' (שם הבנק לא נראה). ריבית כוללת חזויה 4.58%. מל\"צ: עוגן +0.79. הפריים P-0.80 (3.95%).",
+      "tracks": [
+        {
+          "type": "fixed_unlinked",
+          "termYears": 12,
+          "rate": 4.25,
+          "amount": 340000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 14,
+          "rate": 4.18,
+          "changeEveryYears": 2,
+          "amount": 360000
+        },
+        {
+          "type": "prime",
+          "termYears": 15,
+          "primeMargin": -0.8,
+          "amount": 300000
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-07-20-s2k8",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "Finwiz - קבוצת המשכנתאות ונדלן",
+        "url": "https://www.facebook.com/groups/144679486171484/posts/2025804334725647",
+        "postedAt": "2026-07-20",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "היי חברים.. לקחתי משכנתא..רציתי לדעת את דעתכם.",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-07-20",
+      "offerDateBasis": "post_date",
+      "stage": "signed",
+      "loanAmount": 1410000,
+      "notes": "מתוך צילום מסך. משכנתא שנלקחה, והמשך של fb-2026-06-04-p1b7. תקופות בחודשים: מל\"צ 361, פריים 360 ו-361, קל\"צ 240 ו-289. הן עוגלו ל-30 ו-24 שנה. בפריים מופיעה ריבית 4.2 בלי מרווח.",
+      "tracks": [
+        {
+          "type": "variable_unlinked",
+          "termYears": 30,
+          "rate": 4.11,
+          "changeEveryYears": 2,
+          "amount": 265000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 30,
+          "rate": 4.18,
+          "changeEveryYears": 5,
+          "amount": 365000
+        },
+        {
+          "type": "prime",
+          "termYears": 30,
+          "rate": 4.2,
+          "amount": 77032
+        },
+        {
+          "type": "prime",
+          "termYears": 30,
+          "rate": 4.2,
+          "amount": 222968
+        },
+        {
+          "type": "fixed_unlinked",
+          "termYears": 20,
+          "rate": 4.45,
+          "amount": 330000
+        },
+        {
+          "type": "fixed_unlinked",
+          "termYears": 24,
+          "rate": 4.28,
+          "amount": 150000
+        }
+      ]
+    },
+    {
+      "id": "fb-2026-07-19-v7n3",
+      "source": {
+        "kind": "facebook_post",
+        "channel": "Finwiz - קבוצת המשכנתאות ונדלן",
+        "url": "https://www.facebook.com/groups/144679486171484/posts/2022015595104521",
+        "postedAt": "2026-07-19",
+        "authorLabel": "חבר/ת קבוצה",
+        "quote": "היי, איך ההצעה? נכס 2.5, הון עצמי 1.2, הכנסה זוג - 35 נטו",
+        "collectedAt": "2026-10-01",
+        "collectedBy": "claude-in-chrome"
+      },
+      "offerDate": "2026-07-19",
+      "offerDateBasis": "post_date",
+      "stage": "initial",
+      "loanAmount": 1300000,
+      "notes": "מתוך צילום מסך: 'אישור עקרוני ז' - סל מוצע'. מגיב ציין שמדובר במזרחי, אבל הכותב/ת לא ציין/ה בנק, ולכן השדה הושמט. LTV 52%. ריבית כוללת חזויה 4.39%. מל\"צ: עוגן אג\"ח ל-2 שנים 3.24% ותוספת 0.75%, ותדירות השינוי לא צוינה במפורש. הפריים 5.00% בתוספת -0.90%.",
+      "tracks": [
+        {
+          "type": "fixed_unlinked",
+          "termYears": 12,
+          "rate": 4.25,
+          "amount": 434000
+        },
+        {
+          "type": "variable_unlinked",
+          "termYears": 14,
+          "rate": 3.99,
+          "amount": 433000
+        },
+        {
+          "type": "prime",
+          "termYears": 13,
+          "primeMargin": -0.9,
+          "amount": 433000
+        }
+      ]
+    }
+  ],
+  "run": {
+    "runDate": "2026-10-01",
+    "windowStart": "2026-06-03",
+    "status": "ok",
+    "sources": [
+      {
+        "name": "משכנתאות ביטוחים ופיננסים -הקהילה שדואגת לכסף שלך",
+        "status": "ok",
+        "postsScanned": 16,
+        "offersFound": 1,
+        "note": "רוב תוצאות החיפוש ישנות. ב-2026 כמעט אין פוסטים עם הצעות."
+      },
+      {
+        "name": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+        "status": "ok",
+        "postsScanned": 28,
+        "offersFound": 14,
+        "note": "4 רשומות מסומנות stage=unknown או 'סל אחיד' ומומלץ לבדוק אותן ידנית (f6d1, h2z8, k1p8, u3j6)."
+      },
+      {
+        "name": "Finwiz - קבוצת המשכנתאות ונדלן",
+        "status": "ok",
+        "postsScanned": 12,
+        "offersFound": 6,
+        "note": "p1b7 ו-s2k8 הן אותה משכנתא: לפני חתימה ואחרי חתימה."
+      }
+    ],
+    "rejected": [
+      {
+        "url": "https://www.facebook.com/groups/497197171420020/posts/1752128742593517",
+        "reason": "סוג המסלול חסר: '4.5% לא צמוד' ל-30 שנה, בלי ציון אם קבועה או משתנה"
+      },
+      {
+        "url": "https://www.facebook.com/groups/497197171420020/posts/1690565208749871",
+        "reason": "ההצעות מתוארכות ל-12/05/2026 (אישור עקרוני), יותר מ-120 יום"
+      },
+      {
+        "url": "https://www.facebook.com/groups/497197171420020/posts/1738478570625201",
+        "reason": "שאלה כללית לפני מכרז ריביות, בלי הצעה"
+      },
+      {
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/26010274695312027",
+        "reason": "פוסט מ-03/05/2026, יותר מ-120 יום"
+      },
+      {
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/26909280302078124",
+        "reason": "משכנתא קיימת (שאלה על מיחזור), בלי הצעה חדשה"
+      },
+      {
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27781484651524347",
+        "reason": "משכנתא קיימת ישנה, בלי הצעה חדשה"
+      },
+      {
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/26920734267599394",
+        "reason": "משכנתא שנלקחה לפני כחצי שנה, יותר מ-120 יום"
+      },
+      {
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27603659249306889",
+        "reason": "משכנתא קיימת מ-2020"
+      },
+      {
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27675457598793720",
+        "reason": "שאלה כללית ('פריים מינוס 0.65 נחשב טוב?') בלי תקופה ובלי הצעה מפורטת"
+      },
+      {
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27709325058740307",
+        "reason": "צילום של ריכוז סלים (ריבית כוללת לכל סל), בלי ריבית ותקופה לכל מסלול"
+      },
+      {
+        "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27000458976293589",
+        "reason": "אישורים עקרוניים בלי ריביות, רק חלוקת אחוזים"
+      }
+    ],
+    "notes": "נאסף ב-Claude in Chrome. ריצה ידנית מ-01/10/2026 שיובאה ב-09/10. 6 מההצעות כבר נאספו בריצת 08/10 ולא נכללו כאן. רשומה אחת (סל אחיד מאישור עקרוני) הושמטה כי ריצת 08/10 דחתה אותה."
+  }
+}
