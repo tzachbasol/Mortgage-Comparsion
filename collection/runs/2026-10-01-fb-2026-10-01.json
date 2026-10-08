@@ -1,0 +1,97 @@
+{
+  "runDate": "2026-10-01",
+  "windowStart": "2026-06-03",
+  "status": "ok",
+  "sources": [
+    {
+      "name": "משכנתאות ביטוחים ופיננסים -הקהילה שדואגת לכסף שלך",
+      "status": "ok",
+      "postsScanned": 16,
+      "offersFound": 1,
+      "note": "רוב תוצאות החיפוש ישנות. ב-2026 כמעט אין פוסטים עם הצעות."
+    },
+    {
+      "name": "משכנתא - קבוצת התייעצות ומידע. משכנתאות | נדל\"ן | מימון | ביטוחים",
+      "status": "ok",
+      "postsScanned": 28,
+      "offersFound": 14,
+      "note": "4 רשומות מסומנות stage=unknown או 'סל אחיד' ומומלץ לבדוק אותן ידנית (f6d1, h2z8, k1p8, u3j6)."
+    },
+    {
+      "name": "Finwiz - קבוצת המשכנתאות ונדלן",
+      "status": "ok",
+      "postsScanned": 12,
+      "offersFound": 6,
+      "note": "p1b7 ו-s2k8 הן אותה משכנתא: לפני חתימה ואחרי חתימה."
+    }
+  ],
+  "added": [
+    "fb-2026-07-19-t8w1",
+    "fb-2026-09-09-r2c5",
+    "fb-2026-09-03-k1p8",
+    "fb-2026-08-03-m5v2",
+    "fb-2026-06-10-w8e1",
+    "fb-2026-08-13-c4y9",
+    "fb-2026-08-04-g9s5",
+    "fb-2026-06-04-p1b7",
+    "fb-2026-07-30-e5t2",
+    "fb-2026-09-13-x4h6",
+    "fb-2026-07-20-s2k8",
+    "fb-2026-07-19-v7n3"
+  ],
+  "rejected": [
+    {
+      "url": "https://www.facebook.com/groups/497197171420020/posts/1752128742593517",
+      "reason": "סוג המסלול חסר: '4.5% לא צמוד' ל-30 שנה, בלי ציון אם קבועה או משתנה"
+    },
+    {
+      "url": "https://www.facebook.com/groups/497197171420020/posts/1690565208749871",
+      "reason": "ההצעות מתוארכות ל-12/05/2026 (אישור עקרוני), יותר מ-120 יום"
+    },
+    {
+      "url": "https://www.facebook.com/groups/497197171420020/posts/1738478570625201",
+      "reason": "שאלה כללית לפני מכרז ריביות, בלי הצעה"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/26010274695312027",
+      "reason": "פוסט מ-03/05/2026, יותר מ-120 יום"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/26909280302078124",
+      "reason": "משכנתא קיימת (שאלה על מיחזור), בלי הצעה חדשה"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27781484651524347",
+      "reason": "משכנתא קיימת ישנה, בלי הצעה חדשה"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/26920734267599394",
+      "reason": "משכנתא שנלקחה לפני כחצי שנה, יותר מ-120 יום"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27603659249306889",
+      "reason": "משכנתא קיימת מ-2020"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27675457598793720",
+      "reason": "שאלה כללית ('פריים מינוס 0.65 נחשב טוב?') בלי תקופה ובלי הצעה מפורטת"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27709325058740307",
+      "reason": "צילום של ריכוז סלים (ריבית כוללת לכל סל), בלי ריבית ותקופה לכל מסלול"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27000458976293589",
+      "reason": "אישורים עקרוניים בלי ריביות, רק חלוקת אחוזים"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27073601478979338",
+      "reason": "הפוסט כבר קיים במאגר"
+    },
+    {
+      "url": "https://www.facebook.com/groups/httpspln.co.il/posts/27206870348985783",
+      "reason": "הפוסט כבר קיים במאגר"
+    }
+  ],
+  "notes": "נאסף ב-Claude in Chrome. ריצה ידנית מ-01/10/2026 שיובאה ב-09/10. 6 מההצעות כבר נאספו בריצת 08/10 ולא נכללו כאן. רשומה אחת (סל אחיד מאישור עקרוני) הושמטה כי ריצת 08/10 דחתה אותה."
+}
