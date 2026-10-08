@@ -294,7 +294,7 @@ function AdminView({ records, evaluated, assumptions, onLogout }: Props & { onLo
         <p className="muted">קטגוריה עם פחות מ־3 רשומות מסומנת באדום: החציון שלה לא אמין.</p>
       </div>
 
-      {(summary.withoutUrl.length > 0 || summary.duplicateUrls.length > 0 || summary.excluded.length > 0) && (
+      {(summary.withoutUrl.length > 0 || summary.duplicateUrls.length > 0 || summary.excluded.length > 0 || summary.needsReview.length > 0) && (
         <div className="card">
           <h3>בעיות איכות</h3>
           {summary.withoutUrl.length > 0 && (
@@ -305,6 +305,22 @@ function AdminView({ records, evaluated, assumptions, onLogout }: Props & { onLo
                   <li key={r.id}>
                     <code>{r.id}</code>: {r.source.channel}, {r.source.postedAt}
                     {r.source.screenshot ? ', יש צילום' : r.source.quote ? ', יש ציטוט בלבד' : ''}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {summary.needsReview.length > 0 && (
+            <>
+              <h4>ממתינות לבדיקה ({summary.needsReview.length})</h4>
+              <p className="muted">
+                מוצגות במאגר אבל לא נכנסות לריביות ולחציונים. לאישור: מוחקים את השדה <code>needsReview</code> מהרשומה ב־
+                <code>public/data/records.json</code>.
+              </p>
+              <ul>
+                {summary.needsReview.map((r) => (
+                  <li key={r.id}>
+                    <SourceLink record={r} /> · <code>{r.id}</code>: {r.needsReview!.reason}
                   </li>
                 ))}
               </ul>

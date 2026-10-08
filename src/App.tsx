@@ -4,17 +4,19 @@ import Compare from './components/Compare';
 import Records from './components/Records';
 import Methodology from './components/Methodology';
 import Admin from './components/Admin';
+import CollectionReport from './components/CollectionReport';
 import { evaluateMix } from './lib/evaluate';
 import { usePersistentState } from './lib/storage';
 import type { CurrentTrack, EconomicAssumptions, MatchSettings, MixTrack, OfferRecord } from './lib/types';
 
-type Tab = 'builder' | 'compare' | 'admin' | 'records' | 'methodology';
+type Tab = 'builder' | 'compare' | 'admin' | 'records' | 'report' | 'methodology';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'builder', label: 'בניית תמהיל' },
   { id: 'compare', label: 'השוואה למשכנתא שלי' },
   { id: 'admin', label: '🔒 ביקורת מקורות (אדמין)' },
   { id: 'records', label: 'מאגר הרשומות' },
+  { id: 'report', label: 'דוח איסוף' },
   { id: 'methodology', label: 'מקורות ומתודולוגיה' },
 ];
 
@@ -46,6 +48,16 @@ async function loadJson(path: string): Promise<OfferRecord[]> {
 
 export default function App() {
   const [tab, setTab] = usePersistentState<Tab>('tab', 'builder');
+  // Links like …/#report (used in the daily email) open a tab directly.
+  useEffect(() => {
+    const fromHash = () => {
+      const id = window.location.hash.slice(1);
+      if (TABS.some((t) => t.id === id)) setTab(id as Tab);
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, [setTab]);
   const [repoRecords, setRepoRecords] = useState<OfferRecord[]>([]);
   const [demoRecords, setDemoRecords] = useState<OfferRecord[]>([]);
   const [localRecords, setLocalRecords] = usePersistentState<OfferRecord[]>('localRecords', []);
@@ -117,6 +129,9 @@ export default function App() {
         )}
         {tab === 'records' && (
           <Records records={allRecords} localRecords={localRecords} setLocalRecords={setLocalRecords} includeDemo={settings.includeDemo} />
+        )}
+        {tab === 'report' && (
+          <CollectionReport records={repoRecords} primeRate={assumptions.primeRate} goToRecords={() => setTab('records')} />
         )}
         {tab === 'admin' && <Admin records={allRecords} evaluated={evaluated} assumptions={assumptions} />}
         {tab === 'methodology' && <Methodology />}

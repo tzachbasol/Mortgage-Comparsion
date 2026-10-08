@@ -54,6 +54,11 @@ export function validateRecord(r: unknown): string | null {
     const windowErr = collectionWindowError(rec.offerDate, s.postedAt, s.collectedAt);
     if (windowErr) return windowErr;
   }
+  if (rec.needsReview !== undefined) {
+    if (typeof rec.needsReview?.reason !== 'string' || !rec.needsReview.reason.trim() || !isDate(rec.needsReview?.since)) {
+      return 'רשומה לבדיקה (needsReview) חייבת סיבה ותאריך';
+    }
+  }
   if (!s.url && !s.screenshot && !s.quote) return 'חייב להיות לפחות אחד: קישור, צילום מסך או ציטוט מהפוסט';
   if (!(rec.stage in OFFER_STAGE_LABELS)) return `שלב הצעה לא מוכר: ${rec.stage}`;
   if (!Array.isArray(rec.tracks) || !rec.tracks.length) return 'אין מסלולים';

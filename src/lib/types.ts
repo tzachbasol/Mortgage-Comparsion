@@ -97,6 +97,12 @@ export interface OfferRecord {
    * rules. Excluded records are never used in rates, medians or coverage.
    */
   excluded?: { reason: string; since: string };
+  /**
+   * Set by the collector on borderline records (e.g. the post doesn't say the offer came from a bank).
+   * They are shown on the site but left out of rates and medians until the owner approves them by
+   * removing this field.
+   */
+  needsReview?: { reason: string; since: string };
   bank?: string;
   stage: OfferStage;
   loanAmount?: number;
