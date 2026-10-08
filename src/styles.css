@@ -169,12 +169,14 @@ label.file input { display: none; }
 @media (max-width: 560px) {
   .app { padding: 12px; }
   h1 { font-size: 24px; }
-  .grid, .filters { grid-template-columns: 1fr; }
-  .track-fields { display: grid; grid-template-columns: 1fr 1fr; }
+  .grid, .filters { grid-template-columns: minmax(0, 1fr); }
+  /* minmax(0, …) lets columns shrink below a long option label instead of overflowing the card */
+  .track-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .track-fields input, .track-fields select, .filters input, .filters select, .grid input, .grid select { width: 100%; }
   .track-fields label:first-child { grid-column: 1 / -1; }
   .track-fields small { white-space: normal; }
   button.remove { grid-column: 1 / -1; justify-self: stretch; }
-  .track-result { grid-template-columns: 1fr; }
+  .track-result { grid-template-columns: minmax(0, 1fr); }
   .stat-value { font-size: 24px; }
   .tabs { flex-wrap: nowrap; overflow-x: auto; }
   .tabs button { white-space: nowrap; padding: 10px 10px; }
