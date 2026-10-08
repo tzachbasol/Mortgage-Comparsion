@@ -195,7 +195,7 @@ function LatestRun({ day, records }: { day: DayRun; records: OfferRecord[] }) {
 export default function CollectionReport({ records, primeRate, goToRecords }: Props) {
   const [logs, setLogs] = useState<RunLog[] | null>(null);
   useEffect(() => {
-    fetch('data/runs.json')
+    fetch('data/runs.json', { cache: 'no-cache' })
       .then((r) => (r.ok ? r.json() : []))
       .then((x: RunLog[]) => setLogs(Array.isArray(x) ? x : []))
       .catch(() => setLogs([]));

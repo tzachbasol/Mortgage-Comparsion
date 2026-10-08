@@ -38,7 +38,8 @@ const DEFAULT_ASSUMPTIONS: EconomicAssumptions = { primeRate: 5.25, inflation: 2
 
 async function loadJson(path: string): Promise<OfferRecord[]> {
   try {
-    const res = await fetch(path);
+    // GitHub Pages caches for 10 minutes; revalidate so a fresh collection shows up right after deploy.
+    const res = await fetch(path, { cache: 'no-cache' });
     if (!res.ok) return [];
     return (await res.json()) as OfferRecord[];
   } catch {
