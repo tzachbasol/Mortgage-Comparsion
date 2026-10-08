@@ -12,6 +12,7 @@ import {
   type OfferStage,
   type TrackType,
 } from '../lib/types';
+import RateStrip from './RateStrip';
 import SourcesPanel from './SourcesPanel';
 import Totals from './Totals';
 
@@ -50,8 +51,38 @@ export default function Builder(props: Props) {
         </div>
       )}
 
-      <details className="panel" open>
-        <summary>הנחות וסינון רשומות</summary>
+      <div className="tracks">
+        {evaluated.tracks.map((et) => (
+          <TrackRow
+            key={et.track.id}
+            et={et}
+            update={(p) => update(et.track.id, p)}
+            remove={() => setMix((m) => m.filter((t) => t.id !== et.track.id))}
+            sourcesOpen={openSources === et.track.id}
+            toggleSources={() => setOpenSources(openSources === et.track.id ? null : et.track.id)}
+          />
+        ))}
+      </div>
+      <button className="add" onClick={() => setMix((m) => [...m, { id: uid(), type: 'fixed_unlinked', termYears: 20, amount: 300000 }])}>
+        + הוסף מסלול
+      </button>
+
+      <div className="checks">
+        <span className={fixedShare >= 1 / 3 - 1e-9 ? 'ok' : 'bad'}>ריבית קבועה: {fmtPct(fixedShare * 100, 0)} (דרישת בנק ישראל: לפחות שליש)</span>
+        <span className={primeShare <= 2 / 3 + 1e-9 ? 'ok' : 'bad'}>פריים: {fmtPct(primeShare * 100, 0)} (מקסימום שני שלישים)</span>
+      </div>
+
+      <Totals title="סיכום התמהיל" evaluated={evaluated} />
+
+      <details className="panel settings">
+        <summary>
+          הגדרות מתקדמות: פריים, אינפלציה וסינון רשומות
+          <span className="muted">
+            {' '}
+            · פריים {fmtPct(assumptions.primeRate)} · אינפלציה {fmtPct(assumptions.inflation, 1)} · {settings.bank || 'כל הבנקים'}
+            {settings.maxAgeMonths > 0 && <> · {settings.maxAgeMonths} חודשים אחרונים</>}
+          </span>
+        </summary>
         <div className="grid">
           <label>
             ריבית פריים נוכחית (%)
@@ -101,44 +132,18 @@ export default function Builder(props: Props) {
           </label>
         </div>
       </details>
-
-      <div className="tracks">
-        {evaluated.tracks.map((et) => (
-          <TrackRow
-            key={et.track.id}
-            et={et}
-            assumptions={assumptions}
-            update={(p) => update(et.track.id, p)}
-            remove={() => setMix((m) => m.filter((t) => t.id !== et.track.id))}
-            sourcesOpen={openSources === et.track.id}
-            toggleSources={() => setOpenSources(openSources === et.track.id ? null : et.track.id)}
-          />
-        ))}
-      </div>
-      <button className="add" onClick={() => setMix((m) => [...m, { id: uid(), type: 'fixed_unlinked', termYears: 20, amount: 300000 }])}>
-        + הוסף מסלול
-      </button>
-
-      <div className="checks">
-        <span className={fixedShare >= 1 / 3 - 1e-9 ? 'ok' : 'bad'}>ריבית קבועה: {fmtPct(fixedShare * 100, 0)} (דרישת בנק ישראל: לפחות שליש)</span>
-        <span className={primeShare <= 2 / 3 + 1e-9 ? 'ok' : 'bad'}>פריים: {fmtPct(primeShare * 100, 0)} (מקסימום שני שלישים)</span>
-      </div>
-
-      <Totals title="סיכום התמהיל" evaluated={evaluated} />
     </section>
   );
 }
 
 function TrackRow({
   et,
-  assumptions,
   update,
   remove,
   sourcesOpen,
   toggleSources,
 }: {
   et: EvaluatedTrack;
-  assumptions: EconomicAssumptions;
   update: (p: Partial<MixTrack>) => void;
   remove: () => void;
   sourcesOpen: boolean;
@@ -197,31 +202,49 @@ function TrackRow({
       </div>
 
       <div className="track-result">
-        <div className={`rate-basis ${rateSource}`}>
-          {rateSource === 'records' && s && (
+        <div className={`stat rate-basis ${rateSource}`}>
+          <span className="stat-label">{rateSource === 'manual' ? 'ריבית ידנית' : 'ריבית'}</span>
+          {rateSource === 'none' ? (
+            <span className="stat-sub">אין רשומות תואמות. הרחב את הסינון בהגדרות המתקדמות או הזן ריבית ידנית.</span>
+          ) : (
             <>
-              ריבית: <b>{fmtVal(s.median)}</b>
-              {isPrime && <> ({fmtPct(totalRate!)})</>} · חציון של <b>{s.count}</b> רשומות · טווח {fmtVal(s.min)} עד {fmtVal(s.max)}
+              <span className="stat-value">
+                {fmtVal(et.usedValue!)}
+                {isPrime && <span className="stat-aside"> ({fmtPct(totalRate!)})</span>}
+              </span>
+              <span className="stat-sub">
+                {rateSource === 'records' && s && (
+                  <>
+                    חציון של {s.count} רשומות · טווח {fmtVal(s.min)} עד {fmtVal(s.max)}
+                  </>
+                )}
+                {rateSource === 'manual' && <>לא מבוססת על רשומות{s && <> · חציון הרשומות {fmtVal(s.median)}</>}</>}
+              </span>
             </>
           )}
-          {rateSource === 'manual' && (
-            <>
-              ריבית ידנית: <b>{fmtVal(track.manualRate!)}</b>
-              {isPrime && <> ({fmtPct(assumptions.primeRate + track.manualRate!)})</>} · לא מבוססת על רשומות
-              {s && <> (חציון הרשומות: {fmtVal(s.median)} מתוך {s.count})</>}
-            </>
-          )}
-          {rateSource === 'none' && <>אין רשומות תואמות למסלול הזה. הרחב את הסינון, הוסף רשומות או הזן ריבית ידנית.</>}
         </div>
         {totalRate !== undefined && (
-          <div className="payment">
-            החזר חודשי ראשון: <b>{fmtMoney(result.firstPayment)}</b> · סה"כ תשלומים: {fmtMoney(result.totalPaid)}
+          <div className="stat">
+            <span className="stat-label">החזר חודשי ראשון</span>
+            <span className="stat-value">{fmtMoney(result.firstPayment)}</span>
+            <span className="stat-sub">סה"כ תשלומים {fmtMoney(result.totalPaid)}</span>
           </div>
         )}
-        <button className="link" onClick={toggleSources} disabled={!et.matches.length}>
-          {sourcesOpen ? 'הסתר מקורות' : `על אילו שליפות זה מבוסס? (${et.matches.length})`}
-        </button>
+        {s && (
+          <div className="stat dist">
+            <span className="stat-label">פיזור הרשומות</span>
+            <RateStrip
+              values={et.matches.map((m) => m.value)}
+              median={s.median}
+              used={rateSource === 'manual' ? track.manualRate : undefined}
+              format={fmtVal}
+            />
+          </div>
+        )}
       </div>
+      <button className="link" onClick={toggleSources} disabled={!et.matches.length}>
+        {sourcesOpen ? 'הסתר מקורות' : `על אילו רשומות זה מבוסס? (${et.matches.length})`}
+      </button>
       {sourcesOpen && <SourcesPanel matches={et.matches} isPrime={isPrime} />}
     </div>
   );

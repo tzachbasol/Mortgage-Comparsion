@@ -185,3 +185,33 @@ export function buildAlerts(days: DayRun[], records: OfferRecord[], today: strin
   if (pending) alerts.push({ level: 'info', text: `${pending} רשומות ממתינות לבדיקה שלך ולא נכנסות לחישובים (פירוט בלשונית האדמין).` });
   return alerts;
 }
+
+export interface MedianSeries {
+  key: string;
+  type: TrackType;
+  bucket: string;
+  points: { date: string; median?: number; count: number }[];
+}
+
+/**
+ * The median of each well-covered category as of every run day, oldest first, for the trend chart.
+ * Only categories with at least `minCount` records on the latest day are included.
+ */
+export function medianHistory(records: OfferRecord[], dates: string[], primeRate: number, minCount = 3): MedianSeries[] {
+  const asc = [...new Set(dates)].sort();
+  if (!asc.length) return [];
+  const byDate = asc.map((d) => categoryValues(records, d, primeRate));
+  const latest = byDate[byDate.length - 1];
+  return [...latest.entries()]
+    .filter(([, c]) => c.values.length >= minCount)
+    .map(([key, c]) => ({
+      key,
+      type: c.type,
+      bucket: c.bucket,
+      points: asc.map((date, i) => {
+        const v = byDate[i].get(key)?.values ?? [];
+        return { date, median: v.length ? median(v) : undefined, count: v.length };
+      }),
+    }))
+    .sort((a, b) => TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type) || a.bucket.localeCompare(b.bucket));
+}

@@ -3,6 +3,9 @@ import { ADMIN_HASH, checkPassword } from '../lib/admin';
 import { buildCategories, describeTrack, isReal, summarize, type CoverageEntry } from '../lib/coverage';
 import type { EvaluatedMix } from '../lib/evaluate';
 import { stats } from '../lib/match';
+import { categoryMedians, groupRuns } from '../lib/report';
+import { useRunLogs } from '../lib/useRuns';
+import { daysBetween } from '../lib/validate';
 import { fmtPct, fmtSigned } from '../lib/storage';
 import { SOURCE_KIND_LABELS, TRACK_LABELS, offerDateOf, type EconomicAssumptions, type OfferRecord, type SourceKind } from '../lib/types';
 
@@ -165,6 +168,7 @@ function AdminView({ records, evaluated, assumptions, onLogout }: Props & { onLo
 
   return (
     <section>
+      <QuickSummary records={records} primeRate={assumptions.primeRate} />
       <div className="card">
         <div className="admin-head">
           <h3>ביקורת מקורות (אדמין)</h3>
@@ -364,6 +368,58 @@ function Tile({ label, value }: { label: string; value: number }) {
     <div className="tile">
       <div className="tile-value">{value}</div>
       <div className="tile-label">{label}</div>
+    </div>
+  );
+}
+
+/** The few numbers that tell, at a glance, whether collection is healthy and where rates stand. */
+function QuickSummary({ records, primeRate }: { records: OfferRecord[]; primeRate: number }) {
+  const logs = useRunLogs();
+  const today = new Date().toISOString().slice(0, 10);
+  const real = useMemo(() => records.filter(isReal), [records]);
+  const days = useMemo(() => groupRuns(logs ?? []), [logs]);
+  const medians = useMemo(() => categoryMedians(real, today, undefined, primeRate), [real, today, primeRate]);
+  const lastRun = days[0];
+  const lastFacebook = days.find((d) => d.collectors.includes('facebook'));
+  const ago = (iso?: string) => {
+    if (!iso) return 'עוד לא רץ';
+    const n = daysBetween(iso, today);
+    return n === 0 ? 'היום' : n === 1 ? 'אתמול' : `לפני ${n} ימים`;
+  };
+  const pick = (type: string, bucket: string) => medians.find((m) => m.type === type && m.bucket === bucket);
+  const headline = [
+    { label: 'פריים, 26–35 שנה', m: pick('prime', '26–35'), prime: true },
+    { label: 'קל"צ, 16–20 שנה', m: pick('fixed_unlinked', '16–20'), prime: false },
+    { label: 'קל"צ, 26–35 שנה', m: pick('fixed_unlinked', '26–35'), prime: false },
+    { label: 'משתנה לא צמודה, 26–35', m: pick('variable_unlinked', '26–35'), prime: false },
+  ];
+  return (
+    <div className="card">
+      <h3>מבט מהיר</h3>
+      <div className="tiles">
+        <Tile label="רשומות במאגר" value={real.length} />
+        <Tile label="ממתינות לבדיקה" value={real.filter((r) => r.needsReview).length} />
+        <div className="tile">
+          <div className="tile-value small-value">{logs === null ? '…' : ago(lastRun?.runDate)}</div>
+          <div className="tile-label">ריצת איסוף אחרונה</div>
+        </div>
+        <div className="tile">
+          <div className="tile-value small-value">{logs === null ? '…' : ago(lastFacebook?.runDate)}</div>
+          <div className="tile-label">איסוף פייסבוק אחרון</div>
+        </div>
+      </div>
+      <div className="tiles">
+        {headline.map((h) => (
+          <div key={h.label} className="tile">
+            <div className="tile-value">{h.m ? fmtValue(h.prime, h.m.median) : '—'}</div>
+            <div className="tile-label">
+              {h.label}
+              {h.m && <> · {h.m.count} רשומות</>}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="muted">חציון ההצעות מ־120 הימים האחרונים, בלי רשומות מוחרגות או ממתינות לבדיקה.</p>
     </div>
   );
 }

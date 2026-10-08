@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildAlerts, categoryMedians, groupRuns, type RunLog } from './report';
+import { buildAlerts, categoryMedians, groupRuns, medianHistory, type RunLog } from './report';
 import type { OfferRecord } from './types';
 
 const web = (runDate: string, patch: Partial<RunLog> = {}): RunLog => ({
@@ -104,5 +104,22 @@ describe('buildAlerts', () => {
   it('reports a blocked latest run with its reason', () => {
     const days = groupRuns([web('2026-10-08', { status: 'blocked', notes: 'אין הרשאת push' })]);
     expect(texts(buildAlerts(days, [], '2026-10-08'))).toMatch(/נחסמה או נכשלה: אין הרשאת push/);
+  });
+});
+
+describe('medianHistory', () => {
+  it('tracks the median of well-covered categories across run days, oldest first', () => {
+    const records = [
+      record('a', '2026-09-01', '2026-09-02'),
+      record('b', '2026-09-01', '2026-09-02', { tracks: [{ type: 'prime', termYears: 30, primeMargin: -0.8 }] }),
+      record('c', '2026-10-01', '2026-10-08', { tracks: [{ type: 'prime', termYears: 30, primeMargin: -1.0 }] }),
+      record('f', '2026-10-01', '2026-10-08', { tracks: [{ type: 'fixed_unlinked', termYears: 20, rate: 4.5 }] }),
+    ];
+    const [prime, ...rest] = medianHistory(records, ['2026-10-08', '2026-09-30', '2026-10-08'], 5);
+    expect(rest).toEqual([]);
+    expect(prime.points.map((p) => p.date)).toEqual(['2026-09-30', '2026-10-08']);
+    expect(prime.points[0].median).toBeCloseTo(-0.7);
+    expect(prime.points[1].median).toBeCloseTo(-0.8);
+    expect(prime.points.map((p) => p.count)).toEqual([2, 3]);
   });
 });

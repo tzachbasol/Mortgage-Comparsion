@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { fmtPct, fmtSigned } from '../lib/storage';
-import { COLLECTOR_LABELS, buildAlerts, categoryMedians, groupRuns, type DayRun, type RunLog } from '../lib/report';
+import { COLLECTOR_LABELS, buildAlerts, categoryMedians, groupRuns, medianHistory, type DayRun } from '../lib/report';
+import { useRunLogs } from '../lib/useRuns';
+import MedianTrends from './MedianTrends';
 import { SOURCE_KIND_LABELS, TRACK_LABELS, offerDateOf, type OfferRecord, type RecordTrack, type TrackType } from '../lib/types';
 import { OFFER_WINDOW_DAYS } from '../lib/validate';
 
@@ -193,13 +195,7 @@ function LatestRun({ day, records }: { day: DayRun; records: OfferRecord[] }) {
 }
 
 export default function CollectionReport({ records, primeRate, goToRecords }: Props) {
-  const [logs, setLogs] = useState<RunLog[] | null>(null);
-  useEffect(() => {
-    fetch('data/runs.json', { cache: 'no-cache' })
-      .then((r) => (r.ok ? r.json() : []))
-      .then((x: RunLog[]) => setLogs(Array.isArray(x) ? x : []))
-      .catch(() => setLogs([]));
-  }, []);
+  const logs = useRunLogs();
 
   const days = useMemo(() => groupRuns(logs ?? []), [logs]);
   const latest = days[0];
@@ -208,6 +204,7 @@ export default function CollectionReport({ records, primeRate, goToRecords }: Pr
     () => (latest ? categoryMedians(records, latest.runDate, days[1]?.runDate, primeRate) : []),
     [records, latest, days, primeRate],
   );
+  const trends = useMemo(() => medianHistory(records, days.map((d) => d.runDate), primeRate), [records, days, primeRate]);
   const active = records.filter((r) => !r.excluded);
   const byKind = (kind: OfferRecord['source']['kind']) => active.filter((r) => r.source.kind === kind).length;
 
@@ -286,6 +283,12 @@ export default function CollectionReport({ records, primeRate, goToRecords }: Pr
         ) : (
           <p className="muted">אין רשומות מאושרות מ־{OFFER_WINDOW_DAYS} הימים האחרונים.</p>
         )}
+      </div>
+
+      <div className="card">
+        <h3>מגמת החציון לאורך הריצות</h3>
+        <p className="muted">קטגוריות עם 3 רשומות לפחות. כל נקודה היא החציון כפי שהיה ביום הריצה.</p>
+        <MedianTrends series={trends} />
       </div>
 
       {days.length > 1 && (
