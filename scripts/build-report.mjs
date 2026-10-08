@@ -1,5 +1,7 @@
 // Builds the collection report page (HTML body for the Claude artifact) from
-// collection/runs/*.json and public/data/records.json.
+// collection/runs/*.json and public/data/records.json. Run logs from the same day
+// (web routine + Facebook task) are merged into one daily run, and the whole
+// database is listed, so the artifact grows with every merged run.
 // Usage: node scripts/build-report.mjs > report.html
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -33,14 +35,41 @@ const median = (xs) => {
 const trackValue = (t) => (t.type === 'prime' ? t.primeMargin : t.rate);
 const fmtVal = (type, v) => (v === undefined || v === null ? '—' : type === 'prime' ? `P${v >= 0 ? '+' : ''}${v.toFixed(2)}%` : `${v.toFixed(2)}%`);
 
+const SOURCE_KIND = { facebook_post: 'פייסבוק', forum_post: 'פורום' };
+const STATUS_RANK = { ok: 0, partial: 1, blocked: 2 };
+
 const records = JSON.parse(readFileSync(join(root, 'public/data/records.json'), 'utf8'));
 const runsDir = join(root, 'collection/runs');
-const runs = existsSync(runsDir)
+const runLogs = existsSync(runsDir)
   ? readdirSync(runsDir)
       .filter((f) => f.endsWith('.json'))
       .map((f) => JSON.parse(readFileSync(join(runsDir, f), 'utf8')))
-      .sort((a, b) => b.runDate.localeCompare(a.runDate))
   : [];
+
+/**
+ * One day can have several run logs (the web routine and the Facebook task each write one).
+ * Merge them into a single daily run so the report shows everything collected that day.
+ */
+const isFacebookLog = (l) => /Chrome/.test(l.notes ?? '') || (l.added ?? []).some((id) => id.startsWith('fb-'));
+
+function mergeDay(logs) {
+  const hasFacebookRun = logs.some(isFacebookLog);
+  const sources = logs.flatMap((l) => l.sources ?? []);
+  return {
+    runDate: logs[0].runDate,
+    windowStart: logs.map((l) => l.windowStart).filter(Boolean).sort()[0],
+    status: logs.map((l) => l.status).sort((a, b) => (STATUS_RANK[b] ?? 1) - (STATUS_RANK[a] ?? 1))[0],
+    // The web routine lists Facebook as blocked (it can't log in); drop that row when the Facebook task ran.
+    sources: hasFacebookRun ? sources.filter((s) => !(s.status === 'blocked' && /פייסבוק/.test(s.name) && !s.postsScanned)) : sources,
+    added: logs.flatMap((l) => l.added ?? []),
+    rejected: logs.flatMap((l) => l.rejected ?? []),
+    prUrls: logs.map((l) => l.prUrl).filter(Boolean),
+    notes: logs.filter((l) => l.notes).map((l) => `${isFacebookLog(l) ? 'פייסבוק' : 'פורומים'}: ${l.notes}`),
+  };
+}
+const byDate = new Map();
+for (const l of runLogs) byDate.set(l.runDate, [...(byDate.get(l.runDate) ?? []), l]);
+const runs = [...byDate.values()].map(mergeDay).sort((a, b) => b.runDate.localeCompare(a.runDate));
 const run = runs[0];
 const prev = runs[1];
 
@@ -68,6 +97,33 @@ function tracksCell(r) {
   return r.tracks
     .map((t) => `<span class="trk">${esc(TRACK_LABELS[t.type])} ${t.termYears} שנה <b>${fmtVal(t.type, trackValue(t))}</b></span>`)
     .join('');
+}
+
+const offeredOn = (r) => r.offerDate ?? r.source.postedAt;
+const sourceCell = (r) => `<span class="chip ${r.source.kind === 'facebook_post' ? 'fb' : 'web'}">${esc(SOURCE_KIND[r.source.kind] ?? r.source.kind)}</span> ${esc(r.source.channel)}`;
+
+function recordsTable(rows) {
+  return `<div class="scroll"><table><thead><tr><th>ההצעה ניתנה</th><th>מקור</th><th>בנק</th><th>מסלולים</th><th>קישור</th></tr></thead><tbody>${rows
+    .map(
+      (r) => `<tr><td class="num">${fmtDate(offeredOn(r))}</td><td>${sourceCell(r)}</td><td>${esc(r.bank ?? '—')}</td><td>${tracksCell(r)}</td><td>${
+        r.source.url ? `<a href="${esc(r.source.url)}">לפוסט</a>` : '<span class="muted">אין קישור</span>'
+      }</td></tr>`,
+    )
+    .join('')}</tbody></table></div>`;
+}
+
+/** The whole database, newest offer first. Grows with every merged run (web routine and Facebook task). */
+function databaseSection() {
+  const active = records.filter((r) => !r.excluded).sort((a, b) => offeredOn(b).localeCompare(offeredOn(a)));
+  const excluded = records.length - active.length;
+  const count = (kind) => active.filter((r) => r.source.kind === kind).length;
+  const inWindow = run ? active.filter((r) => offeredOn(r) >= addDays(run.runDate, -WINDOW_DAYS)).length : active.length;
+  return `
+  <section>
+    <h3>המאגר המלא</h3>
+    <p class="muted">${active.length} רשומות פעילות: ${count('facebook_post')} מפייסבוק, ${count('forum_post')} מפורומים. ${inWindow} מהן מ־${WINDOW_DAYS} הימים האחרונים.${excluded ? ` ${excluded} רשומות הוחרגו ונשמרות לתיעוד בלבד.` : ''}</p>
+    ${active.length ? recordsTable(active) : '<p class="muted">המאגר עדיין ריק.</p>'}
+  </section>`;
 }
 
 let body;
@@ -111,24 +167,18 @@ if (!run) {
       <div><dt>סה"כ במאגר</dt><dd>${records.length}</dd></div>
     </dl>
     <div class="links">
-      ${run.prUrl ? `<a class="btn primary" href="${esc(run.prUrl)}">לשינוי ב־GitHub</a>` : ''}
+      ${run.prUrls.map((u, i) => `<a class="btn${i ? '' : ' primary'}" href="${esc(u)}">לשינוי ב־GitHub${run.prUrls.length > 1 ? ` (${i + 1})` : ''}</a>`).join('')}
       <a class="btn" href="${SITE_URL}">לאתר</a>
       <a class="btn" href="${REPO_URL}">לריפו</a>
     </div>
-    ${run.notes ? `<p class="note">${esc(run.notes)}</p>` : ''}
+    ${run.notes.map((n) => `<p class="note">${esc(n)}</p>`).join('')}
   </section>
 
   <section>
     <h3>ממצאים חדשים</h3>
     ${
       added.length
-        ? `<div class="scroll"><table><thead><tr><th>ההצעה ניתנה</th><th>מקור</th><th>בנק</th><th>מסלולים</th><th>קישור</th></tr></thead><tbody>${added
-            .map(
-              (r) => `<tr><td class="num">${fmtDate(r.offerDate ?? r.source.postedAt)}</td><td>${esc(r.source.channel)}</td><td>${esc(r.bank ?? '—')}</td><td>${tracksCell(r)}</td><td>${
-                r.source.url ? `<a href="${esc(r.source.url)}">לפוסט</a>` : '<span class="muted">אין קישור</span>'
-              }</td></tr>`,
-            )
-            .join('')}</tbody></table></div>`
+        ? recordsTable(added)
         : '<p class="muted">לא נמצאו הצעות חדשות בריצה הזו.</p>'
     }
   </section>
@@ -161,13 +211,15 @@ if (!run) {
     }
   </section>
 
+  ${databaseSection()}
+
   ${
     runs.length > 1
       ? `<section><h3>ריצות קודמות</h3><div class="scroll"><table><thead><tr><th>תאריך</th><th>מצב</th><th>חדשות</th><th>נדחו</th><th>קישור</th></tr></thead><tbody>${runs
           .slice(1)
           .map((r) => {
             const [l, c] = RUN_STATUS[r.status] ?? [r.status, 'warn'];
-            return `<tr><td class="num">${fmtDate(r.runDate)}</td><td><span class="chip ${c}">${l}</span></td><td class="num">${r.added.length}</td><td class="num">${r.rejected.length}</td><td>${r.prUrl ? `<a href="${esc(r.prUrl)}">שינוי</a>` : '—'}</td></tr>`;
+            return `<tr><td class="num">${fmtDate(r.runDate)}</td><td><span class="chip ${c}">${l}</span></td><td class="num">${r.added.length}</td><td class="num">${r.rejected.length}</td><td>${r.prUrls.length ? r.prUrls.map((u) => `<a href="${esc(u)}">שינוי</a>`).join(' ') : '—'}</td></tr>`;
           })
           .join('')}</tbody></table></div></section>`
       : ''
@@ -220,6 +272,7 @@ a { color: var(--accent); }
 .chip.ok { color: var(--ok); background: var(--ok-bg); }
 .chip.bad { color: var(--bad); background: var(--bad-bg); }
 .chip.warn { color: var(--warn); background: var(--warn-bg); }
+.chip.fb, .chip.web { font-size: 12px; padding: 1px 8px; color: var(--muted); background: var(--bg); border: 1px solid var(--line); }
 .ok { color: var(--ok); } .bad { color: var(--bad); }
 .scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 15px; }
@@ -234,7 +287,7 @@ td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 <div class="page" dir="rtl" lang="he">
   <header>
     <h1>דוח איסוף הצעות משכנתא</h1>
-    <div class="muted">נאסף כל יומיים מפורומים בעברית. רשומות שעוברות את כל הבדיקות נכנסות לאתר אוטומטית.</div>
+    <div class="muted">נאסף כל יום מפורומים בעברית ומקבוצות פייסבוק. רשומות שעוברות את כל הבדיקות נכנסות למאגר ולאתר אוטומטית.</div>
   </header>
   ${body}
 </div>
