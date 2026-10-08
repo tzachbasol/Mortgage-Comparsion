@@ -1,0 +1,21 @@
+{
+  "runDate": "2026-10-08",
+  "windowStart": "2026-06-10",
+  "status": "partial",
+  "sources": [
+    {"name": "הסולידית – נדל\"ן", "url": "https://www.hasolidit.com/kehila/forums/%D7%A0%D7%93%D7%9C-%D7%9F.28/", "status": "ok", "postsScanned": 3, "offersFound": 0, "note": "נסרקו 3 שרשורים הקשורים למשכנתא: אחד כבר נאסף בריצה קודמת, אחד על מיחזור/שיעבוד בלי הצעת בנק, אחד שאלה כללית"},
+    {"name": "הסולידית – צרכנות פיננסית", "url": "https://www.hasolidit.com/kehila/forums/%D7%A6%D7%A8%D7%9B%D7%A0%D7%95%D7%AA-%D7%A4%D7%99%D7%A0%D7%A0%D7%A1%D7%99%D7%AA.8/", "status": "ok", "postsScanned": 1, "offersFound": 0, "note": "שאלה על מה אפשר לקבל בבנק, בלי הצעה ספציפית"},
+    {"name": "תפוז – משכנתאות וייעוץ מיחזור", "url": "https://www.tapuz.co.il/forums/%D7%9E%D7%A9%D7%9B%D7%A0%D7%AA%D7%90%D7%95%D7%AA-%D7%95%D7%99%D7%99%D7%A2%D7%95%D7%A5-%D7%9E%D7%99%D7%97%D7%96%D7%95%D7%A8.1733/", "status": "ok", "postsScanned": 1, "offersFound": 0, "note": "השרשור האחרון נפתח ב-09/06/2026 (מחוץ לחלון); תוכנו שאלה בלי הצעת בנק"},
+    {"name": "ספונסר – פורום משכנתאות", "url": "https://www.sponser.co.il/forum.php?forumid=20", "status": "error", "note": "הכתובת מחזירה הפניה לדף שגיאה 404"},
+    {"name": "FXP", "url": "https://www.fxp.co.il/", "status": "blocked", "note": "Cloudflare challenge – לא עוקפים"},
+    {"name": "רוטר", "url": "https://rotter.net/", "status": "blocked", "note": "Cloudflare challenge – לא עוקפים"},
+    {"name": "פייסבוק – קבוצות", "status": "blocked", "note": "דורש התחברות; נאסף בנפרד דרך Chrome"}
+  ],
+  "added": [],
+  "rejected": [
+    {"url": "https://www.hasolidit.com/kehila/threads/37055/", "reason": "שרשור 'שוקלים למחזר' – מציג משכנתא קיימת ושאלה, בלי הצעת בנק"},
+    {"url": "https://www.tapuz.co.il/threads/15733016/", "reason": "שאלה כללית על משכנתא, בלי מספרים של הצעה"}
+  ],
+  "prUrl": "https://github.com/tzachbasol/Mortgage-Comparsion/tree/collect/2026-10-08",
+  "notes": "לא נמצאו הצעות חדשות בחלון. נשמר יומן בלבד."
+}
