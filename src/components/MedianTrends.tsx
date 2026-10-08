@@ -42,7 +42,7 @@ export default function MedianTrends({ series }: { series: MedianSeries[] }) {
                 <span className={`trend-delta ${delta < 0 ? 'ok' : delta > 0 ? 'bad' : 'muted'}`}>{fmtSigned(delta)}</span>
               )}
             </figcaption>
-            <svg viewBox={`0 0 ${W} ${H}`} dir="ltr" role="img" aria-label={`חציון ${TRACK_LABELS[s.type]} ${s.bucket} שנים לאורך ${pts.length} ריצות`}>
+            <svg viewBox={`0 0 ${W} ${H}`} style={{ direction: 'ltr' }} role="img" aria-label={`חציון ${TRACK_LABELS[s.type]} ${s.bucket} שנים לאורך ${pts.length} ריצות`}>
               {pts.length > 1 && (
                 <polyline className="trend-line" points={pts.map((p) => `${x(p.date)},${y(p.median)}`).join(' ')} />
               )}

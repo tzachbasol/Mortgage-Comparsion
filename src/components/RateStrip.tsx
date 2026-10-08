@@ -28,7 +28,7 @@ export default function RateStrip({ values, median, used, format }: Props) {
     <svg
       className="rate-strip"
       viewBox={`0 0 ${W} ${H}`}
-      dir="ltr"
+      style={{ direction: 'ltr' }}
       role="img"
       aria-label={`פיזור ${values.length} רשומות: מ־${format(Math.min(...values))} עד ${format(Math.max(...values))}${median !== undefined ? `, חציון ${format(median)}` : ''}`}
     >
