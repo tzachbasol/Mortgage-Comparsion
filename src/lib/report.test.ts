@@ -89,7 +89,7 @@ describe('buildAlerts', () => {
     const pending = [record('p', '2026-10-01', '2026-10-01', { needsReview: { reason: 'r', since: '2026-10-01' } })];
     const out = texts(buildAlerts(days, pending, '2026-10-09'));
     expect(out).toMatch(/אין ריצת איסוף 4 ימים/);
-    expect(out).toMatch(/פייסבוק לא רץ 4 ימים/);
+    expect(out).toMatch(/פייסבוק לא רץ 8 ימים/);
     expect(out).toMatch(/"FXP"/);
     expect(out).not.toMatch(/"הסולידית"/);
     expect(out).toMatch(/1 רשומות ממתינות/);
