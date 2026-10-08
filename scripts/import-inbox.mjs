@@ -8,25 +8,29 @@ import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateRecord } from '../src/lib/validate.ts';
 
+/** The same post can be linked with or without a trailing slash or tracking query, so compare without them. */
+export const normalizeUrl = (url) => (url ? url.split(/[?#]/)[0].replace(/\/+$/, '') : url);
+
 /** Pure merge step, exported for tests. Never modifies or removes existing records. */
 export function importPayload(existing, payload, today) {
   const ids = new Set(existing.map((r) => r.id));
-  const urls = new Set(existing.map((r) => r.source?.url).filter(Boolean));
+  const urls = new Set(existing.map((r) => normalizeUrl(r.source?.url)).filter(Boolean));
   const added = [];
   const rejected = [...(payload.run?.rejected ?? [])];
   for (const raw of payload.records ?? []) {
     const rec = { ...raw, source: { collectedAt: today, ...raw.source } };
     const url = rec.source?.url;
+    const key = normalizeUrl(url);
     let reason = validateRecord(rec);
     if (!reason && ids.has(rec.id)) reason = `מזהה כפול: ${rec.id}`;
-    if (!reason && url && urls.has(url)) reason = 'הפוסט כבר קיים במאגר';
+    if (!reason && key && urls.has(key)) reason = 'הפוסט כבר קיים במאגר';
     if (reason) {
       rejected.push({ url: url ?? '', reason });
       continue;
     }
     added.push(rec);
     ids.add(rec.id);
-    if (url) urls.add(url);
+    if (key) urls.add(key);
   }
   // A run that is imported late (e.g. pushed a few days after it ran) keeps its own date, never a future one.
   const stated = payload.run?.runDate;

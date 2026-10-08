@@ -55,4 +55,15 @@ describe('importPayload', () => {
     expect(r.added[0].needsReview.reason).toMatch(/הצעת בנק/);
     expect(r.run.rejected[0].reason).toMatch(/needsReview/);
   });
+
+  it('treats links that differ only by a trailing slash or query as the same post', () => {
+    const base = [rec('old', 'https://www.facebook.com/groups/1/posts/2/')];
+    const r = importPayload(
+      base,
+      { records: [rec('a', 'https://www.facebook.com/groups/1/posts/2'), rec('b', 'https://www.facebook.com/groups/1/posts/2/?ref=x'), rec('c', 'https://www.facebook.com/groups/1/posts/3')] },
+      '2026-09-30',
+    );
+    expect(r.added.map((x) => x.id)).toEqual(['c']);
+    expect(r.run.rejected.map((x) => x.reason)).toEqual(['הפוסט כבר קיים במאגר', 'הפוסט כבר קיים במאגר']);
+  });
 });
