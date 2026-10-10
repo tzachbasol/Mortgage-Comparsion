@@ -1,29 +1,36 @@
-import { amortize, sumResults } from '../lib/calc';
+import { useState } from 'react';
+import { EMPTY_RESULT, amortize, sumResults } from '../lib/calc';
 import type { EvaluatedMix } from '../lib/evaluate';
 import { fmtMoney, fmtPct, uid, usePersistentState } from '../lib/storage';
-import { TRACK_LABELS, type CurrentTrack, type EconomicAssumptions, type TrackType } from '../lib/types';
+import { LINKED_TRACKS, TRACK_LABELS, type CurrentTrack, type EconomicAssumptions, type TrackType } from '../lib/types';
+import MoneyInput from './MoneyInput';
 
 interface Props {
   current: CurrentTrack[];
   setCurrent: (c: CurrentTrack[] | ((p: CurrentTrack[]) => CurrentTrack[])) => void;
-  evaluated: EvaluatedMix;
+  /** Every mix from the builder, in tab order. */
+  allEvaluated: EvaluatedMix[];
+  /** The mix last edited in the builder; compared by default. */
+  activeMix: number;
   assumptions: EconomicAssumptions;
-  goToBuilder: () => void;
-  scaleMixTo: (principal: number) => void;
+  goToBuilder: (mix: number) => void;
+  scaleMixTo: (principal: number, mix: number) => void;
 }
 
-export default function Compare({ current, setCurrent, evaluated, assumptions, goToBuilder, scaleMixTo }: Props) {
+const num = (v: string) => (v === '' ? 0 : Number(v));
+const mixName = (i: number) => `תמהיל ${i + 1}`;
+
+export default function Compare({ current, setCurrent, allEvaluated, activeMix, assumptions, goToBuilder, scaleMixTo }: Props) {
   const [costs, setCosts] = usePersistentState('refinanceCosts', { earlyRepaymentFee: 0, otherCosts: 0 });
+  const [chosen, setChosen] = useState(activeMix);
+  const which = allEvaluated[chosen] ? chosen : 0;
+  const evaluated = allEvaluated[which];
   const update = (id: string, patch: Partial<CurrentTrack>) =>
     setCurrent((c) => c.map((t) => (t.id === id ? { ...t, ...patch } : t)));
 
-  const currentTotals = sumResults(
-    current.map((t) => ({
-      principal: t.remainingBalance,
-      rate: t.rate,
-      result: amortize(t.remainingBalance, t.rate, t.remainingMonths, t.type, assumptions.inflation),
-    })),
-  );
+  // A track without a rate yet would otherwise be priced as an interest-free loan.
+  const results = current.map((t) => (t.rate ? amortize(t.remainingBalance, t.rate, t.remainingMonths, t.type, assumptions.inflation) : { ...EMPTY_RESULT }));
+  const currentTotals = sumResults(current.map((t, i) => ({ principal: t.remainingBalance, rate: t.rate, result: results[i] })));
   const proposed = evaluated.totals;
   const extraCosts = costs.earlyRepaymentFee + costs.otherCosts;
   const monthlySaving = currentTotals.firstPayment - proposed.firstPayment;
@@ -33,103 +40,179 @@ export default function Compare({ current, setCurrent, evaluated, assumptions, g
   const rows: [string, number, number, (n: number) => string][] = [
     ['יתרת קרן', currentTotals.principal, proposed.principal, fmtMoney],
     ['ריבית משוקללת', currentTotals.weightedRate, proposed.weightedRate, (n) => fmtPct(n)],
-    ['החזר חודשי ראשון', currentTotals.firstPayment, proposed.firstPayment, fmtMoney],
-    ['החזר חודשי מקסימלי (צפוי)', currentTotals.maxPayment, proposed.maxPayment, fmtMoney],
-    ['סה"כ תשלומים עד הסוף', currentTotals.totalPaid, proposed.totalPaid, fmtMoney],
-    ['ריבית + הצמדה', currentTotals.totalInterestAndIndexation, proposed.totalInterestAndIndexation, fmtMoney],
+    ['החזר חודשי', currentTotals.firstPayment, proposed.firstPayment, fmtMoney],
+    ['החזר מקסימלי (צפוי)', currentTotals.maxPayment, proposed.maxPayment, fmtMoney],
+    ['החזר ריבית', currentTotals.totalInterest, proposed.totalInterest, fmtMoney],
+    ['החזר הצמדה למדד', currentTotals.totalIndexation, proposed.totalIndexation, fmtMoney],
+    ['החזר בסוף תקופה', currentTotals.totalPaid, proposed.totalPaid, fmtMoney],
   ];
 
   return (
     <section>
-      <div className="card">
-        <h3>המשכנתא הנוכחית שלי</h3>
-        <p className="muted">הזן את נתוני המסלולים כפי שהם מופיעים בדוח היתרות מהבנק.</p>
-        {current.map((t) => (
-          <div className="track-fields" key={t.id}>
-            <label>
-              סוג מסלול
-              <select value={t.type} onChange={(e) => update(t.id, { type: e.target.value as TrackType })}>
-                {(Object.keys(TRACK_LABELS) as TrackType[]).map((k) => (
-                  <option key={k} value={k}>
-                    {TRACK_LABELS[k]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              יתרה לסילוק (₪)
-              <input type="number" step={1000} value={t.remainingBalance} onChange={(e) => update(t.id, { remainingBalance: Number(e.target.value) })} />
-            </label>
-            <label>
-              חודשים שנותרו
-              <input type="number" value={t.remainingMonths} onChange={(e) => update(t.id, { remainingMonths: Number(e.target.value) })} />
-            </label>
-            <label>
-              ריבית כוללת נוכחית (%)
-              <input type="number" step="0.01" value={t.rate} onChange={(e) => update(t.id, { rate: Number(e.target.value) })} />
-              {t.type === 'prime' && <small>פריים + מרווח, למשל {fmtPct(assumptions.primeRate - 0.5)}</small>}
-            </label>
-            <button className="remove" onClick={() => setCurrent((c) => c.filter((x) => x.id !== t.id))} aria-label="הסר">
-              ✕
-            </button>
+      <h3 className="mix-summary-title">המשכנתא הנוכחית שלי</h3>
+      <p className="muted center">הזן את המסלולים כפי שהם מופיעים בדוח היתרות מהבנק.</p>
+      <div className="mix-panel mix-panel-current">
+        <div className="mix-grid current-grid" role="table" aria-label="מסלולי המשכנתא הנוכחית">
+          <div className="mix-row mix-head" role="row">
+            <span role="columnheader" aria-label="מספר מסלול" />
+            <span role="columnheader">יתרה לסילוק</span>
+            <span role="columnheader">מסלול</span>
+            <span role="columnheader">חודשים שנותרו</span>
+            <span role="columnheader" title="ריבית כוללת נוכחית. בפריים: פריים + מרווח">
+              ריבית כוללת ⓘ
+            </span>
+            <span role="columnheader" title="במסלולים צמודים החישוב משתמש באינפלציה מההגדרות המתקדמות במסך בניית התמהיל">
+              מדד ⓘ
+            </span>
+            <span role="columnheader" className="res">
+              החזר חודשי
+            </span>
+            <span role="columnheader" className="res">
+              החזר כולל
+            </span>
           </div>
-        ))}
-        <button
-          className="add"
-          onClick={() => setCurrent((c) => [...c, { id: uid(), type: 'prime', remainingBalance: 300000, remainingMonths: 240, rate: assumptions.primeRate - 0.5 }])}
-        >
-          + הוסף מסלול קיים
-        </button>
-
-        <div className="grid">
+          {current.map((t, i) => (
+            <div className="mix-row" role="row" key={t.id}>
+              <span role="cell" className="row-n">
+                {i + 1}
+              </span>
+              <label role="cell" data-label="יתרה לסילוק">
+                <MoneyInput
+                  placeholder="הזן יתרה"
+                  aria-label={`יתרה לסילוק במסלול ${i + 1}`}
+                  value={t.remainingBalance}
+                  onChange={(v) => update(t.id, { remainingBalance: v ?? 0 })}
+                />
+              </label>
+              <label role="cell" data-label="מסלול">
+                <select aria-label={`סוג מסלול ${i + 1}`} value={t.type} onChange={(e) => update(t.id, { type: e.target.value as TrackType })}>
+                  {(Object.keys(TRACK_LABELS) as TrackType[]).map((k) => (
+                    <option key={k} value={k}>
+                      {TRACK_LABELS[k]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label role="cell" data-label="חודשים שנותרו">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  placeholder="הזן"
+                  aria-label={`חודשים שנותרו במסלול ${i + 1}`}
+                  value={t.remainingMonths || ''}
+                  onChange={(e) => update(t.id, { remainingMonths: num(e.target.value) })}
+                />
+              </label>
+              <label role="cell" data-label="ריבית כוללת">
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder={t.type === 'prime' ? fmtPct(assumptions.primeRate - 0.5) : 'הזן'}
+                  aria-label={`ריבית כוללת במסלול ${i + 1}`}
+                  value={t.rate || ''}
+                  onChange={(e) => update(t.id, { rate: num(e.target.value) })}
+                />
+              </label>
+              <label role="cell" data-label="מדד">
+                <input disabled value={LINKED_TRACKS.has(t.type) ? fmtPct(assumptions.inflation, 1) : '---'} aria-label="אינפלציה צפויה" />
+              </label>
+              <span role="cell" className="res" data-label="החזר חודשי">
+                {results[i].firstPayment ? fmtMoney(results[i].firstPayment) : '—'}
+              </span>
+              <span role="cell" className="res" data-label="החזר כולל">
+                {results[i].totalPaid ? fmtMoney(results[i].totalPaid) : '—'}
+              </span>
+            </div>
+          ))}
+          <div className="mix-row mix-foot" role="row">
+            <span role="cell" className="foot-label">
+              סה"כ {fmtMoney(currentTotals.principal)}
+            </span>
+            <span role="cell" className="res" data-label="החזר חודשי">
+              {fmtMoney(currentTotals.firstPayment)}
+            </span>
+            <span role="cell" className="res" data-label="החזר כולל">
+              {fmtMoney(currentTotals.totalPaid)}
+            </span>
+          </div>
+        </div>
+        <div className="track-actions">
+          <button
+            className="add-track"
+            onClick={() => setCurrent((c) => [...c, { id: uid(), type: 'prime', remainingBalance: 0, remainingMonths: 240, rate: 0 }])}
+          >
+            לחץ כאן להוספת מסלול
+          </button>
+          <button className="remove-track" disabled={!current.length} onClick={() => setCurrent((c) => c.slice(0, -1))}>
+            הסרת מסלול {current.length || ''}
+          </button>
+        </div>
+        <div className="costs">
           <label>
-            עמלת פירעון מוקדם (₪)
-            <input type="number" value={costs.earlyRepaymentFee} onChange={(e) => setCosts({ ...costs, earlyRepaymentFee: Number(e.target.value) })} />
-            <small>לפי דוח היתרות / הבנק</small>
+            עמלת פירעון מוקדם
+            <MoneyInput placeholder="לפי דוח היתרות" value={costs.earlyRepaymentFee} onChange={(v) => setCosts({ ...costs, earlyRepaymentFee: v ?? 0 })} />
           </label>
           <label>
-            עלויות נוספות (שמאות, פתיחת תיק, יועץ) (₪)
-            <input type="number" value={costs.otherCosts} onChange={(e) => setCosts({ ...costs, otherCosts: Number(e.target.value) })} />
+            עלויות נוספות (שמאות, פתיחת תיק, יועץ)
+            <MoneyInput placeholder="0" value={costs.otherCosts} onChange={(v) => setCosts({ ...costs, otherCosts: v ?? 0 })} />
           </label>
         </div>
       </div>
 
-      <div className="card">
-        <h3>
-          השוואה לתמהיל שבנית <button className="link" onClick={goToBuilder}>(עריכת התמהיל)</button>
-        </h3>
+      <h3 className="mix-summary-title">השוואה לתמהיל שבנית</h3>
+      <div className="mix-tabs compact center-tabs" role="tablist" aria-label="תמהיל להשוואה">
+        {allEvaluated.map((e, i) => (
+          <button
+            key={i}
+            role="tab"
+            aria-selected={which === i}
+            className={`mix-tab mix-tab-${i + 1}${which === i ? ' active' : ''}`}
+            onClick={() => setChosen(i)}
+            disabled={e.totals.principal === 0}
+          >
+            {mixName(i)}
+          </button>
+        ))}
+      </div>
+      <div className="mix-summary">
         {evaluated.missingRates > 0 && (
-          <div className="notice warn">בתמהיל המוצע יש {evaluated.missingRates} מסלולים ללא ריבית. הם לא נכללים בהשוואה.</div>
+          <div className="notice warn">ב{mixName(which)} יש {evaluated.missingRates} מסלולים ללא ריבית. הם לא נכללים בהשוואה.</div>
         )}
         {current.length > 0 && Math.abs(principalGap) > 1000 && (
           <div className="notice">
-            הקרן בתמהיל המוצע {principalGap > 0 ? 'גבוהה' : 'נמוכה'} ב־{fmtMoney(Math.abs(principalGap))} מהיתרה הנוכחית, ולכן ההשוואה לא מדויקת.
-            כדי להשוות מיחזור, התאם את הסכומים בתמהיל ליתרה.{' '}
-            <button className="link" onClick={() => scaleMixTo(currentTotals.principal)}>
+            הקרן ב{mixName(which)} {principalGap > 0 ? 'גבוהה' : 'נמוכה'} ב־{fmtMoney(Math.abs(principalGap))} מהיתרה הנוכחית, ולכן ההשוואה לא מדויקת.{' '}
+            <button className="link" onClick={() => scaleMixTo(currentTotals.principal, which)}>
               התאם את התמהיל ליתרה (שומר על היחסים)
             </button>
           </div>
         )}
-        <table className="compare">
-          <thead>
-            <tr>
-              <th></th>
-              <th>נוכחית</th>
-              <th>מוצעת</th>
-              <th>הפרש</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(([label, a, b, f]) => (
-              <tr key={label}>
-                <td>{label}</td>
-                <td>{f(a)}</td>
-                <td>{f(b)}</td>
-                <td className={b < a ? 'ok' : b > a ? 'bad' : ''}>{f(b - a)}</td>
+        <div className="scroll">
+          <table className="compare">
+            <thead>
+              <tr>
+                <th />
+                <th>נוכחית</th>
+                <th>
+                  <button className="link" onClick={() => goToBuilder(which)}>
+                    {mixName(which)}
+                  </button>
+                </th>
+                <th>הפרש</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map(([label, a, b, f]) => (
+                <tr key={label}>
+                  <th scope="row">{label}</th>
+                  <td className="num">{f(a)}</td>
+                  <td className="num">{f(b)}</td>
+                  <td className={`num ${b < a ? 'ok' : b > a ? 'bad' : ''}`}>{f(b - a)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {current.length > 0 && (
           <div className="verdict">
             <div>
@@ -141,17 +224,19 @@ export default function Compare({ current, setCurrent, evaluated, assumptions, g
             {monthlySaving > 0 && extraCosts > 0 && <div>נקודת איזון: כ־{Math.ceil(extraCosts / monthlySaving)} חודשים</div>}
           </div>
         )}
-        <h4>בסיס הריביות בתמהיל המוצע</h4>
-        <ul className="basis-list">
-          {evaluated.tracks.map((t) => (
-            <li key={t.track.id}>
-              {TRACK_LABELS[t.track.type]} {t.track.termYears} שנים ({fmtMoney(t.track.amount)}):{' '}
-              {t.rateSource === 'records' && <>חציון של {t.stats!.count} רשומות, {fmtPct(t.totalRate!)}</>}
-              {t.rateSource === 'manual' && <>ריבית ידנית {fmtPct(t.totalRate!)} (לא מבוססת על רשומות)</>}
-              {t.rateSource === 'none' && <>אין ריבית</>}
-            </li>
-          ))}
-        </ul>
+        <details className="basis">
+          <summary>בסיס הריביות ב{mixName(which)}</summary>
+          <ul className="basis-list">
+            {evaluated.tracks.map((t) => (
+              <li key={t.track.id}>
+                {TRACK_LABELS[t.track.type]} {Math.round(t.track.termYears * 12)} חודשים ({fmtMoney(t.track.amount)}):{' '}
+                {t.rateSource === 'records' && <>חציון של {t.stats!.count} רשומות, {fmtPct(t.totalRate!)}</>}
+                {t.rateSource === 'manual' && <>ריבית ידנית {fmtPct(t.totalRate!)} (לא מבוססת על רשומות)</>}
+                {t.rateSource === 'none' && <>אין ריבית</>}
+              </li>
+            ))}
+          </ul>
+        </details>
       </div>
     </section>
   );

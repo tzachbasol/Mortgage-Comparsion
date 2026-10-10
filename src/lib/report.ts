@@ -13,6 +13,8 @@ export interface RunLog {
   rejected?: { url?: string; reason: string }[];
   prUrl?: string;
   notes?: string;
+  /** When the run landed in the repo (ISO timestamp); added by scripts/build-runs.mjs from git. */
+  finishedAt?: string;
 }
 
 export interface RunSource {
@@ -37,6 +39,24 @@ export interface DayRun {
   rejected: { url?: string; reason: string; collector: Collector }[];
   links: string[];
   notes: { collector: Collector; text: string }[];
+}
+
+const SCAN_TIME = new Intl.DateTimeFormat('he-IL', {
+  timeZone: 'Asia/Jerusalem',
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
+/** The newest run as "dd.mm.yyyy, hh:mm" (Israel time), or just the date for logs without a timestamp. */
+export function latestScan(logs: RunLog[]): string | undefined {
+  const when = (l: RunLog) => new Date(l.finishedAt ?? `${l.runDate}T00:00:00+03:00`).getTime();
+  const valid = logs.filter((l) => !Number.isNaN(when(l)));
+  if (!valid.length) return undefined;
+  const newest = valid.reduce((a, b) => (when(b) > when(a) ? b : a));
+  return newest.finishedAt ? SCAN_TIME.format(new Date(newest.finishedAt)) : newest.runDate.split('-').reverse().join('.');
 }
 
 export const COLLECTOR_LABELS: Record<Collector, string> = { web: 'פורומים', facebook: 'פייסבוק' };

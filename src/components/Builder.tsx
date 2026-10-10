@@ -15,6 +15,7 @@ import {
   type RepaymentMethod,
   type TrackType,
 } from '../lib/types';
+import MoneyInput from './MoneyInput';
 import RateStrip from './RateStrip';
 import SourcesPanel from './SourcesPanel';
 
@@ -131,12 +132,17 @@ export default function Builder(props: Props) {
                 </span>
               </div>
             </div>
-            <button
-              className="add-track"
-              onClick={() => setMix((m) => [...m, { id: uid(), type: 'fixed_unlinked', termYears: 20, amount: 0 }])}
-            >
-              לחץ כאן להוספת מסלול
-            </button>
+            <div className="track-actions">
+              <button
+                className="add-track"
+                onClick={() => setMix((m) => [...m, { id: uid(), type: 'fixed_unlinked', termYears: 20, amount: 0 }])}
+              >
+                לחץ כאן להוספת מסלול
+              </button>
+              <button className="remove-track" disabled={!mix.length} onClick={() => setMix((m) => m.slice(0, -1))}>
+                הסרת מסלול {mix.length || ''}
+              </button>
+            </div>
           </div>
 
           <h3 className="mix-summary-title">סיכום {mixName(index)}</h3>
@@ -242,14 +248,7 @@ function TrackRow({
           {n}
         </span>
         <label role="cell" data-label="סכום">
-          <input
-            type="text"
-            inputMode="numeric"
-            placeholder="הזן סכום"
-            aria-label={`סכום מסלול ${n}`}
-            value={track.amount ? track.amount.toLocaleString('en-US') : ''}
-            onChange={(e) => update({ amount: num(e.target.value.replace(/[^\d]/g, '')) })}
-          />
+          <MoneyInput placeholder="הזן סכום" aria-label={`סכום מסלול ${n}`} value={track.amount} onChange={(v) => update({ amount: v ?? 0 })} />
         </label>
         <label role="cell" data-label="מסלול" className="type-cell">
           <select
