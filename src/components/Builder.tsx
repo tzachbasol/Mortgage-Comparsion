@@ -5,7 +5,6 @@ import {
   LINKED_TRACKS,
   OFFER_STAGE_LABELS,
   REPAYMENT_LABELS,
-  TRACK_LABELS,
   VARIABLE_TRACKS,
   type EconomicAssumptions,
   type MatchSettings,
@@ -38,6 +37,38 @@ interface Props {
 
 const num = (v: string) => (v === '' ? 0 : Number(v));
 const mixName = (i: number) => `תמהיל ${i + 1}`;
+
+const SHORT_LABELS: Record<TrackType, string> = {
+  prime: 'פריים',
+  fixed_unlinked: 'קבועה לא צמודה',
+  fixed_linked: 'קבועה צמודה',
+  variable_unlinked: 'משתנה לא צמודה',
+  variable_linked: 'משתנה צמודה',
+};
+/** Common reset intervals offered in the track picker; a stored value outside the list is added to it. */
+const RESET_YEARS: Partial<Record<TrackType, number[]>> = { variable_unlinked: [1, 2, 3, 5, 10], variable_linked: [1, 2, 2.5, 3, 5] };
+const trackKey = (t: MixTrack) => (VARIABLE_TRACKS.has(t.type) ? `${t.type}@${t.changeEveryYears ?? 5}` : t.type);
+
+/** One picker for the track and, for variable tracks, how often the rate resets ("משתנה לא צמודה · כל 5"). */
+function trackOptions(t: MixTrack): { value: string; label: string }[] {
+  const out: { value: string; label: string }[] = [];
+  for (const type of Object.keys(SHORT_LABELS) as TrackType[]) {
+    const years = RESET_YEARS[type];
+    if (!years) {
+      out.push({ value: type, label: SHORT_LABELS[type] });
+      continue;
+    }
+    const list = t.type === type && t.changeEveryYears !== undefined && !years.includes(t.changeEveryYears) ? [...years, t.changeEveryYears].sort((a, b) => a - b) : years;
+    for (const y of list) out.push({ value: `${type}@${y}`, label: `${SHORT_LABELS[type]} · כל ${y}` });
+  }
+  return out;
+}
+
+/** Term picker in whole years (native wheel on phones); a stored fractional term stays selectable. */
+function termOptions(termYears: number): number[] {
+  const years = Array.from({ length: 27 }, (_, i) => i + 4);
+  return years.includes(termYears) || !termYears ? years : [...years, termYears].sort((a, b) => a - b);
+}
 
 export default function Builder(props: Props) {
   const { mix, setMix, evaluated, allEvaluated, mixView, setMixView, settings, setSettings, assumptions, setAssumptions, records, realCount } = props;
@@ -90,7 +121,7 @@ export default function Builder(props: Props) {
                 <span role="columnheader">סכום</span>
                 <span role="columnheader">מסלול</span>
                 <span role="columnheader">שיטת החזר</span>
-                <span role="columnheader">תקופה בחודשים</span>
+                <span role="columnheader">תקופה</span>
                 <span role="columnheader" title="קבועה ומשתנה: ריבית כוללת. פריים: המרווח מהפריים. ריק = חציון הרשומות במאגר">
                   ריבית ⓘ
                 </span>
@@ -239,53 +270,40 @@ function TrackRow({
   const isPrime = track.type === 'prime';
   const linked = LINKED_TRACKS.has(track.type);
   const fmtVal = (v: number) => (isPrime ? `P${fmtSigned(v)}` : fmtPct(v));
-  const months = Math.round(track.termYears * 12);
   const priced = totalRate !== undefined && track.amount > 0;
   return (
     <Fragment>
       <div className={`mix-row${open ? ' open' : ''}`} role="row">
-        <span role="cell" className="row-n">
+        <span role="cell" className="row-n c-n">
           {n}
         </span>
-        <label role="cell" data-label="סכום">
-          <MoneyInput placeholder="הזן סכום" aria-label={`סכום מסלול ${n}`} value={track.amount} onChange={(v) => update({ amount: v ?? 0 })} />
+        <label role="cell" data-label="סכום" className="c-amount">
+          <span className="unit" data-unit="₪">
+            <MoneyInput placeholder="הזן" aria-label={`סכום מסלול ${n}`} value={track.amount} onChange={(v) => update({ amount: v ?? 0 })} />
+          </span>
         </label>
-        <label role="cell" data-label="מסלול" className="type-cell">
+        <label role="cell" data-label="מסלול" className="c-type">
           <select
             aria-label={`סוג מסלול ${n}`}
-            value={track.type}
+            value={trackKey(track)}
             onChange={(e) => {
-              const type = e.target.value as TrackType;
+              const [type, every] = e.target.value.split('@') as [TrackType, string | undefined];
               update({
                 type,
-                manualRate: undefined,
-                changeEveryYears: VARIABLE_TRACKS.has(type) ? (track.changeEveryYears ?? 5) : undefined,
+                manualRate: type === track.type ? track.manualRate : undefined,
+                changeEveryYears: every ? Number(every) : undefined,
                 inflation: LINKED_TRACKS.has(type) ? track.inflation : undefined,
               });
             }}
           >
-            {(Object.keys(TRACK_LABELS) as TrackType[]).map((t) => (
-              <option key={t} value={t}>
-                {TRACK_LABELS[t]}
+            {trackOptions(track).map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
               </option>
             ))}
           </select>
-          {VARIABLE_TRACKS.has(track.type) && (
-            <span className="every">
-              כל
-              <input
-                type="number"
-                min={0.5}
-                step={0.5}
-                aria-label={`תדירות שינוי ריבית במסלול ${n} (שנים)`}
-                value={track.changeEveryYears ?? 5}
-                onChange={(e) => update({ changeEveryYears: num(e.target.value) })}
-              />
-              שנים
-            </span>
-          )}
         </label>
-        <label role="cell" data-label="שיטת החזר">
+        <label role="cell" data-label="שיטת החזר" className="c-method">
           <select
             aria-label={`שיטת החזר במסלול ${n}`}
             value={track.method ?? 'spitzer'}
@@ -298,32 +316,30 @@ function TrackRow({
             ))}
           </select>
         </label>
-        <label role="cell" data-label="תקופה בחודשים">
-          <input
-            type="number"
-            inputMode="numeric"
-            min={12}
-            max={420}
-            step={12}
-            placeholder="הזן"
-            aria-label={`תקופה במסלול ${n} בחודשים`}
-            value={months || ''}
-            onChange={(e) => update({ termYears: num(e.target.value) / 12 })}
-          />
+        <label role="cell" data-label="תקופה" className="c-term">
+          <select aria-label={`תקופה במסלול ${n}`} value={track.termYears} onChange={(e) => update({ termYears: Number(e.target.value) })}>
+            {termOptions(track.termYears).map((y) => (
+              <option key={y} value={y}>
+                {Number.isInteger(y) ? `${y} שנים` : `${Math.round(y * 12)} חודשים`}
+              </option>
+            ))}
+          </select>
         </label>
-        <label role="cell" data-label={isPrime ? 'מרווח מהפריים' : 'ריבית'}>
+        <label role="cell" data-label={isPrime ? 'מרווח מהפריים' : 'ריבית'} className="c-rate">
+          <span className="unit" data-unit="%">
           <input
             type="number"
             step="0.01"
             className={rateSource === 'manual' ? 'manual' : rateSource === 'none' ? 'missing' : undefined}
-            placeholder={s ? s.median.toFixed(2) : 'הזן ריבית'}
+            placeholder={s ? s.median.toFixed(2) : 'הזן'}
             aria-label={isPrime ? `מרווח מהפריים במסלול ${n}` : `ריבית במסלול ${n}`}
             value={track.manualRate ?? ''}
             onChange={(e) => update({ manualRate: e.target.value === '' ? undefined : Number(e.target.value) })}
           />
+          </span>
           {isPrime && totalRate !== undefined && <small>{fmtPct(totalRate)}</small>}
         </label>
-        <label role="cell" data-label="מדד">
+        <label role="cell" data-label="מדד" className="c-cpi">
           {linked ? (
             <input
               type="number"
@@ -337,20 +353,44 @@ function TrackRow({
             <input disabled value="---" aria-label="לא רלוונטי למסלול לא צמוד" />
           )}
         </label>
-        <span role="cell" className="adv-cell" data-label="מתקדם">
+        <span role="cell" className="adv-cell c-adv">
           <button className="adv" aria-expanded={open} aria-label={`פרטים מתקדמים למסלול ${n}`} onClick={toggle}>
             {open ? '−' : '+'}
           </button>
         </span>
-        <span role="cell" className="res" data-label="החזר חודשי">
+        <span role="cell" className="res c-pay" data-label="החזר חודשי">
           {priced ? fmtMoney(result.firstPayment) : '—'}
         </span>
-        <span role="cell" className="res" data-label="החזר כולל">
+        <span role="cell" className="res c-total" data-label="החזר כולל">
           {priced ? fmtMoney(result.totalPaid) : '—'}
         </span>
       </div>
       {open && (
         <div className="mix-detail" role="row">
+          <div className="detail-fields phone-only">
+            <label>
+              שיטת החזר
+              <select value={track.method ?? 'spitzer'} onChange={(e) => update({ method: e.target.value === 'spitzer' ? undefined : (e.target.value as RepaymentMethod) })}>
+                {(Object.keys(REPAYMENT_LABELS) as RepaymentMethod[]).map((m) => (
+                  <option key={m} value={m}>
+                    {REPAYMENT_LABELS[m]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {linked && (
+              <label>
+                מדד שנתי צפוי (%)
+                <input
+                  type="number"
+                  step="0.1"
+                  placeholder={inflation.toFixed(1)}
+                  value={track.inflation ?? ''}
+                  onChange={(e) => update({ inflation: e.target.value === '' ? undefined : Number(e.target.value) })}
+                />
+              </label>
+            )}
+          </div>
           <div role="cell" className="track-result">
             <div className={`stat rate-basis ${rateSource}`}>
               <span className="stat-label">{rateSource === 'manual' ? 'ריבית ידנית' : 'ריבית'}</span>
