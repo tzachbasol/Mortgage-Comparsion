@@ -120,7 +120,8 @@ export default function Builder(props: Props) {
               ))}
               <div className="mix-row mix-foot" role="row">
                 <span role="cell" className="foot-label">
-                  סה"כ {total > 0 && fmtMoney(total)}
+                  סה"כ {fmtMoney(evaluated.totals.principal)}
+                  {total !== evaluated.totals.principal && <span className="foot-of"> מתוך {fmtMoney(total)} (מסלול בלי ריבית לא נספר)</span>}
                 </span>
                 <span role="cell" className="res" data-label="החזר חודשי">
                   {fmtMoney(evaluated.totals.firstPayment)}
@@ -228,6 +229,7 @@ function TrackRow({
   toggle: () => void;
 }) {
   const { track, stats: s, rateSource, totalRate, result } = et;
+  const [showSources, setShowSources] = useState(false);
   const isPrime = track.type === 'prime';
   const linked = LINKED_TRACKS.has(track.type);
   const fmtVal = (v: number) => (isPrime ? `P${fmtSigned(v)}` : fmtPct(v));
@@ -241,14 +243,12 @@ function TrackRow({
         </span>
         <label role="cell" data-label="סכום">
           <input
-            type="number"
+            type="text"
             inputMode="numeric"
-            step={10000}
-            min={0}
             placeholder="הזן סכום"
             aria-label={`סכום מסלול ${n}`}
-            value={track.amount || ''}
-            onChange={(e) => update({ amount: num(e.target.value) })}
+            value={track.amount ? track.amount.toLocaleString('en-US') : ''}
+            onChange={(e) => update({ amount: num(e.target.value.replace(/[^\d]/g, '')) })}
           />
         </label>
         <label role="cell" data-label="מסלול" className="type-cell">
@@ -316,8 +316,8 @@ function TrackRow({
           <input
             type="number"
             step="0.01"
-            className={rateSource === 'manual' ? 'manual' : undefined}
-            placeholder={s ? s.median.toFixed(2) : 'הזן'}
+            className={rateSource === 'manual' ? 'manual' : rateSource === 'none' ? 'missing' : undefined}
+            placeholder={s ? s.median.toFixed(2) : 'הזן ריבית'}
             aria-label={isPrime ? `מרווח מהפריים במסלול ${n}` : `ריבית במסלול ${n}`}
             value={track.manualRate ?? ''}
             onChange={(e) => update({ manualRate: e.target.value === '' ? undefined : Number(e.target.value) })}
@@ -338,16 +338,16 @@ function TrackRow({
             <input disabled value="---" aria-label="לא רלוונטי למסלול לא צמוד" />
           )}
         </label>
-        <span role="cell" className="adv-cell">
+        <span role="cell" className="adv-cell" data-label="מתקדם">
           <button className="adv" aria-expanded={open} aria-label={`פרטים מתקדמים למסלול ${n}`} onClick={toggle}>
             {open ? '−' : '+'}
           </button>
         </span>
         <span role="cell" className="res" data-label="החזר חודשי">
-          {priced ? fmtMoney(result.firstPayment) : 0}
+          {priced ? fmtMoney(result.firstPayment) : '—'}
         </span>
         <span role="cell" className="res" data-label="החזר כולל">
-          {priced ? fmtMoney(result.totalPaid) : 0}
+          {priced ? fmtMoney(result.totalPaid) : '—'}
         </span>
       </div>
       {open && (
@@ -396,10 +396,15 @@ function TrackRow({
               </div>
             )}
           </div>
-          {et.matches.length > 0 && <SourcesPanel matches={et.matches} isPrime={isPrime} />}
-          <button className="link danger" onClick={remove}>
-            הסר את מסלול {n}
-          </button>
+          <div className="detail-actions">
+            <button className="link" onClick={() => setShowSources(!showSources)} disabled={!et.matches.length}>
+              {showSources ? 'הסתר מקורות' : `על אילו רשומות זה מבוסס? (${et.matches.length})`}
+            </button>
+            <button className="link danger" onClick={remove}>
+              הסר את מסלול {n}
+            </button>
+          </div>
+          {showSources && <SourcesPanel matches={et.matches} isPrime={isPrime} />}
         </div>
       )}
     </Fragment>
