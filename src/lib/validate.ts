@@ -70,6 +70,8 @@ export function validateRecord(r: unknown): string | null {
     if (!hasRate && !hasMargin) return 'למסלול חסרה ריבית';
     if (hasRate && (t.rate < -2 || t.rate > 20)) return `ריבית לא סבירה: ${t.rate}`;
     if (hasMargin && (t.primeMargin < -3 || t.primeMargin > 3)) return `מרווח פריים לא סביר: ${t.primeMargin}`;
+    if (t.eligibility !== undefined && typeof t.eligibility !== 'boolean') return 'התיוג eligibility חייב להיות true או false';
+    if (t.balloon !== undefined && typeof t.balloon !== 'boolean') return 'התיוג balloon חייב להיות true או false';
   }
   return null;
 }

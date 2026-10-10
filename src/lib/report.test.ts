@@ -101,6 +101,17 @@ describe('buildAlerts', () => {
     expect(texts(buildAlerts(days, [], '2026-10-08'))).not.toMatch(/"FXP"/);
   });
 
+  it('flags Facebook groups that were barely scanned on the latest run', () => {
+    const thin: RunLog = { ...facebook('2026-10-08'), sources: [
+      { name: 'קבוצה א', status: 'ok', postsScanned: 4, offersFound: 0 },
+      { name: 'קבוצה ב', status: 'ok', postsScanned: 30, offersFound: 1 },
+    ] };
+    const out = texts(buildAlerts(groupRuns([web('2026-10-08'), thin]), [], '2026-10-08'));
+    expect(out).toMatch(/כיסוי נמוך בפייסבוק: ב־1 מתוך 2 קבוצות/);
+    expect(out).toMatch(/סה"כ 34 פוסטים/);
+    expect(texts(buildAlerts(groupRuns([web('2026-10-08'), facebook('2026-10-08')]), [], '2026-10-08'))).not.toMatch(/כיסוי נמוך/);
+  });
+
   it('reports a blocked latest run with its reason', () => {
     const days = groupRuns([web('2026-10-08', { status: 'blocked', notes: 'אין הרשאת push' })]);
     expect(texts(buildAlerts(days, [], '2026-10-08'))).toMatch(/נחסמה או נכשלה: אין הרשאת push/);

@@ -100,6 +100,7 @@ function categoryValues(records: OfferRecord[], asOf: string, primeRate: number)
     const offered = offerDateOf(r);
     if (r.source.collectedAt > asOf || offered > asOf || daysBetween(offered, asOf) > OFFER_WINDOW_DAYS) continue;
     for (const t of r.tracks) {
+      if (t.balloon) continue;
       const v = trackValue(t, primeRate);
       if (v === undefined || Number.isNaN(v)) continue;
       const b = TERM_BUCKETS.find(([lo, hi]) => t.termYears >= lo && t.termYears <= hi) ?? TERM_BUCKETS[TERM_BUCKETS.length - 1];
@@ -135,6 +136,8 @@ export interface Alert {
 export const MAX_DAYS_WITHOUT_RUN = 2;
 /** Consecutive run days in which a source must fail before it's flagged. */
 export const BLOCKED_STREAK = 3;
+/** A Facebook group scanned with fewer posts than this was not really covered (feed didn't load, run cut short). */
+export const LOW_COVERAGE_POSTS = 20;
 
 /**
  * Things that went wrong silently: no recent run (e.g. the routine lost push access), no recent
@@ -163,6 +166,17 @@ export function buildAlerts(days: DayRun[], records: OfferRecord[], today: strin
     const gap = daysBetween(lastFacebook.runDate, today);
     if (gap >= MAX_DAYS_WITHOUT_RUN) {
       alerts.push({ level: 'warn', text: `האיסוף מפייסבוק לא רץ ${gap} ימים (האחרון ב־${fmt(lastFacebook.runDate)}). המשימה רצה רק כשהמחשב דלוק, האפליקציה פתוחה ו־Chrome מחובר לפייסבוק.` });
+    }
+  }
+  if (lastFacebook && lastFacebook === latest) {
+    const groups = lastFacebook.sources.filter((s) => s.collector === 'facebook');
+    const thin = groups.filter((s) => s.status !== 'blocked' && s.status !== 'error' && (s.postsScanned ?? 0) < LOW_COVERAGE_POSTS);
+    if (thin.length) {
+      const total = groups.reduce((n, s) => n + (s.postsScanned ?? 0), 0);
+      alerts.push({
+        level: 'warn',
+        text: `כיסוי נמוך בפייסבוק: ב־${thin.length} מתוך ${groups.length} קבוצות נסרקו פחות מ־${LOW_COVERAGE_POSTS} פוסטים (סה"כ ${total} פוסטים). יום כזה לא אומר שלא היו הצעות.`,
+      });
     }
   }
   // Newest day first: count each source's failures until its first success.

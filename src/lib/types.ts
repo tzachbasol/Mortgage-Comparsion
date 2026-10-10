@@ -59,6 +59,10 @@ export interface RecordTrack {
   /** Variable tracks: how often the rate resets, in years. */
   changeEveryYears?: number;
   amount?: number;
+  /** Hidden tag: a government eligibility loan (הלוואת זכאות), typed by the track it was given as. Not shown on the site yet. */
+  eligibility?: boolean;
+  /** Hidden tag: a balloon / bullet track (בלון / בולט). Kept out of medians and matches until the calculator models it. */
+  balloon?: boolean;
 }
 
 /** Where a record came from. Every number on the site must trace back to one of these. */
