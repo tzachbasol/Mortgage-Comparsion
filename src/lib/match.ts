@@ -49,7 +49,7 @@ export function findMatches(
     if (settings.stages.length && !settings.stages.includes(record.stage)) continue;
     if (settings.maxAgeMonths > 0 && monthsBetween(offerDateOf(record), now) > settings.maxAgeMonths) continue;
     for (const track of record.tracks) {
-      if (track.type !== target.type) continue;
+      if (track.type !== target.type || track.balloon) continue;
       if (
         target.changeEveryYears !== undefined &&
         track.changeEveryYears !== undefined &&

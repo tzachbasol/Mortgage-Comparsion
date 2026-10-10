@@ -199,7 +199,7 @@ function RecordsTable({ records, onDeleteLocal }: { records: OfferRecord[]; onDe
                   >
                     <td className="num">{offerDateOf(r)}</td>
                     <td>
-                      {r.bank ?? '—'}
+                      {r.bank ?? 'בנק לא ידוע'}
                       {r.origin === 'local' && <span className="badge">מקומי</span>}
                       {r.origin === 'demo' && <span className="badge demo">דמו</span>}
                       {r.excluded && <span className="badge demo">מוחרגת</span>}
