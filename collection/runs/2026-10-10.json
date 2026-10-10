@@ -1,0 +1,19 @@
+{
+  "runDate": "2026-10-10",
+  "windowStart": "2026-06-12",
+  "status": "partial",
+  "sources": [
+    {"name": "הסולידית – נדל\"ן", "url": "https://www.hasolidit.com/kehila/forums/%D7%A0%D7%93%D7%9C-%D7%9F.28/", "status": "ok", "postsScanned": 3, "offersFound": 0, "note": "נסרקו שרשורי משכנתא/מיחזור; אין הצעת בנק חדשה"},
+    {"name": "תפוז – משכנתאות וייעוץ מיחזור", "url": "https://www.tapuz.co.il/forums/%D7%9E%D7%A9%D7%9B%D7%A0%D7%AA%D7%90%D7%95%D7%AA-%D7%95%D7%99%D7%99%D7%A2%D7%95%D7%A5-%D7%9E%D7%99%D7%97%D7%96%D7%95%D7%A8.1733/", "status": "ok", "postsScanned": 1, "offersFound": 0, "note": "השרשור האחרון מ-09/06/2026, מחוץ לחלון"},
+    {"name": "ספונסר – פורום משכנתאות", "url": "https://www.sponser.co.il/forum.php?forumid=20", "status": "error", "postsScanned": 0, "offersFound": 0, "note": "הכתובת מחזירה הפניה (302) לדף שגיאה; כמו בריצה הקודמת"},
+    {"name": "FXP", "url": "https://www.fxp.co.il/", "status": "blocked", "postsScanned": 0, "offersFound": 0, "note": "403 – לא עוקפים"},
+    {"name": "רוטר", "url": "https://rotter.net/", "status": "blocked", "postsScanned": 0, "offersFound": 0, "note": "403 – לא עוקפים"}
+  ],
+  "added": [],
+  "rejected": [
+    {"url": "https://www.hasolidit.com/kehila/threads/37013/", "reason": "משכנתא קיימת מ-09/2025, בלי הצעת בנק חדשה; מחוץ לחלון 120 הימים"},
+    {"url": "https://www.hasolidit.com/kehila/threads/37055/", "reason": "משכנתא קיימת של אב מ-2018 (מסלולים נוכחיים), לא הצעת בנק"}
+  ],
+  "prUrl": "https://github.com/tzachbasol/Mortgage-Comparsion/tree/collect/2026-10-10",
+  "notes": "לא נמצאו הצעות חדשות בחלון. נשמר יומן בלבד."
+}
