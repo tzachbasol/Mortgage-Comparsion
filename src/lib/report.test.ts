@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildAlerts, categoryMedians, groupRuns, medianHistory, type RunLog } from './report';
+import { buildAlerts, categoryMedians, groupRuns, latestScan, medianHistory, type RunLog } from './report';
 import type { OfferRecord } from './types';
 
 const web = (runDate: string, patch: Partial<RunLog> = {}): RunLog => ({
@@ -73,6 +73,16 @@ describe('categoryMedians', () => {
 
   it('leaves out offers older than the 120-day window', () => {
     expect(categoryMedians([record('old', '2026-05-01', '2026-05-02')], '2026-10-08', undefined, 5)).toEqual([]);
+  });
+});
+
+describe('latestScan', () => {
+  it('shows the newest run with its Israel time, or only the date when no time is known', () => {
+    const a: RunLog = { runDate: '2026-10-09', status: 'ok', finishedAt: '2026-10-09T15:30:00Z' };
+    const b: RunLog = { runDate: '2026-10-10', status: 'ok', finishedAt: '2026-10-10T18:54:00Z' };
+    expect(latestScan([a, b])).toMatch(/10.10.2026.*21:54/);
+    expect(latestScan([{ runDate: '2026-10-08', status: 'ok' }])).toBe('08.10.2026');
+    expect(latestScan([])).toBeUndefined();
   });
 });
 

@@ -5,20 +5,37 @@ import Records from './components/Records';
 import Methodology from './components/Methodology';
 import Admin from './components/Admin';
 import CollectionReport from './components/CollectionReport';
+import { isUsable } from './lib/coverage';
 import { evaluateMix } from './lib/evaluate';
+import { latestScan } from './lib/report';
 import { usePersistentState } from './lib/storage';
-import type { CurrentTrack, EconomicAssumptions, MatchSettings, MixTrack, OfferRecord } from './lib/types';
+import { useRunLogs } from './lib/useRuns';
+import { OFFER_WINDOW_DAYS, daysBetween } from './lib/validate';
+import { offerDateOf, type CurrentTrack, type EconomicAssumptions, type MatchSettings, type MixTrack, type OfferRecord } from './lib/types';
 
-type Tab = 'builder' | 'compare' | 'admin' | 'records' | 'report' | 'methodology';
+type Tab = 'builder' | 'compare' | 'panel';
+type PanelTab = 'audit' | 'records' | 'report';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'builder', label: 'בניית תמהיל' },
   { id: 'compare', label: 'השוואה למשכנתא שלי' },
-  { id: 'admin', label: '🔒 ביקורת מקורות (אדמין)' },
+  { id: 'panel', label: 'פאנל ניהול' },
+];
+
+const PANEL_TABS: { id: PanelTab; label: string }[] = [
+  { id: 'audit', label: '🔒 ביקורת מקורות' },
   { id: 'records', label: 'מאגר הרשומות' },
   { id: 'report', label: 'דוח איסוף' },
-  { id: 'methodology', label: 'מקורות ומתודולוגיה' },
 ];
+
+/** Where a link like …/#report lands; also maps tab ids stored by older versions of the site. */
+function route(id: string): { tab: Tab; panel?: PanelTab } | 'methodology' | undefined {
+  if (id === 'methodology') return 'methodology';
+  if (id === 'builder' || id === 'compare' || id === 'panel') return { tab: id };
+  if (id === 'admin' || id === 'audit') return { tab: 'panel', panel: 'audit' };
+  if (id === 'records' || id === 'report') return { tab: 'panel', panel: id };
+  return undefined;
+}
 
 const DEFAULT_MIX: MixTrack[] = [
   { id: 'a', type: 'prime', termYears: 30, amount: 400000 },
@@ -71,17 +88,37 @@ async function loadJson(path: string): Promise<OfferRecord[]> {
 }
 
 export default function App() {
-  const [tab, setTab] = usePersistentState<Tab>('tab', 'builder');
-  // Links like …/#report (used in the daily email) open a tab directly.
+  const [storedTab, setTab] = usePersistentState<string>('tab', 'builder');
+  const [storedPanel, setPanel] = usePersistentState<PanelTab>('panelTab', 'report');
+  const stored = route(storedTab);
+  const tab: Tab = stored && stored !== 'methodology' ? stored.tab : 'builder';
+  const panel: PanelTab = (stored && stored !== 'methodology' && stored.panel) || storedPanel;
+  const [page, setPage] = useState<'main' | 'methodology'>('main');
+  // Links like …/#report (used in the daily email) open a tab directly; #methodology opens its own page.
   useEffect(() => {
     const fromHash = () => {
-      const id = window.location.hash.slice(1);
-      if (TABS.some((t) => t.id === id)) setTab(id as Tab);
+      const r = route(window.location.hash.slice(1));
+      if (r === 'methodology') {
+        setPage('methodology');
+        window.scrollTo(0, 0);
+        return;
+      }
+      setPage('main');
+      if (r) {
+        setTab(r.tab);
+        if (r.panel) setPanel(r.panel);
+      }
     };
     fromHash();
     window.addEventListener('hashchange', fromHash);
     return () => window.removeEventListener('hashchange', fromHash);
-  }, [setTab]);
+  }, [setTab, setPanel]);
+  const openTab = (t: Tab, p?: PanelTab) => {
+    setTab(t);
+    if (p) setPanel(p);
+    if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
+  };
+  const runLogs = useRunLogs();
   const [repoRecords, setRepoRecords] = useState<OfferRecord[]>([]);
   const [demoRecords, setDemoRecords] = useState<OfferRecord[]>([]);
   const [localRecords, setLocalRecords] = usePersistentState<OfferRecord[]>('localRecords', []);
@@ -109,6 +146,18 @@ export default function App() {
     [repoRecords, localRecords, demoRecords],
   );
   const realCount = repoRecords.length + localRecords.length;
+  const today = new Date().toISOString().slice(0, 10);
+  // "Live": real, reviewed offers from the last 120 days – the ones the calculator uses by default.
+  const liveCount = [...repoRecords, ...localRecords].filter((r) => isUsable(r) && daysBetween(offerDateOf(r), today) <= OFFER_WINDOW_DAYS).length;
+  const lastScan = runLogs ? latestScan(runLogs) : undefined;
+  const scaleMix = (principal: number, index: number) =>
+    setMixes((all) =>
+      all.map((m, i) => {
+        if (i !== index) return m;
+        const total = m.reduce((s, t) => s + t.amount, 0);
+        return total ? m.map((t) => ({ ...t, amount: Math.round((t.amount / total) * principal) })) : m;
+      }),
+    );
   const allEvaluated = useMemo(
     () => mixes.map((m) => evaluateMix(m, allRecords, settings, assumptions)),
     [mixes, allRecords, settings, assumptions],
@@ -119,23 +168,39 @@ export default function App() {
     if (v !== 'compare') setActiveMix(v);
   };
 
+  const header = (
+    <header>
+      <h1>מתכנן תמהיל משכנתא</h1>
+      <p className="subtitle">כל ריבית באתר מגיעה מהצעה אמיתית שאדם פרסם: פוסט, תגובה או צילום הצעה.</p>
+      <div className="db-status">
+        <span title="הצעות אמיתיות ומאושרות מ־120 הימים האחרונים, שהחישוב משתמש בהן">{liveCount} מקורות חיים באתר</span>
+        {' · '}סריקה אחרונה: {lastScan ?? '—'}
+        {settings.includeDemo && <span className="badge demo"> נתוני דמו מוצגים</span>}
+      </div>
+    </header>
+  );
+
+  if (page === 'methodology') {
+    return (
+      <div className="app">
+        {header}
+        <p>
+          <a href="#">→ חזרה לאתר</a>
+        </p>
+        <main>
+          <Methodology />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
-      <header>
-        <h1>מתכנן תמהיל משכנתא</h1>
-        <p className="subtitle">
-          כל ריבית באתר מגיעה מרשומה שמקורה בפרסום של אדם אמיתי: פוסט, תגובה או צילום הצעה. בכל מסלול אפשר לראות על
-          אילו רשומות החישוב מבוסס.
-        </p>
-        <div className="db-status">
-          {realCount} רשומות אמיתיות במאגר ({repoRecords.length} מהריפו, {localRecords.length} מקומיות)
-          {settings.includeDemo && <span className="badge demo"> נתוני דמו מוצגים</span>}
-        </div>
-      </header>
+      {header}
 
       <nav className="tabs" role="tablist">
         {TABS.map((t) => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'active' : ''} onClick={() => setTab(t.id)}>
+          <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'active' : ''} onClick={() => openTab(t.id)}>
             {t.label}
           </button>
         ))}
@@ -159,24 +224,41 @@ export default function App() {
           />
         )}
         {tab === 'compare' && (
-          <Compare current={current} setCurrent={setCurrent} evaluated={evaluated} assumptions={assumptions} goToBuilder={() => setTab('builder')}
-            scaleMixTo={(principal) =>
-              setMix((m) => {
-                const total = m.reduce((s, t) => s + t.amount, 0);
-                return total ? m.map((t) => ({ ...t, amount: Math.round((t.amount / total) * principal) })) : m;
-              })
-            }
+          <Compare
+            current={current}
+            setCurrent={setCurrent}
+            allEvaluated={allEvaluated}
+            activeMix={activeMix}
+            assumptions={assumptions}
+            goToBuilder={(i) => {
+              selectMixView(i);
+              openTab('builder');
+            }}
+            scaleMixTo={scaleMix}
           />
         )}
-        {tab === 'records' && (
-          <Records records={allRecords} localRecords={localRecords} setLocalRecords={setLocalRecords} includeDemo={settings.includeDemo} />
+        {tab === 'panel' && (
+          <>
+            <nav className="subtabs" role="tablist" aria-label="פאנל ניהול">
+              {PANEL_TABS.map((t) => (
+                <button key={t.id} role="tab" aria-selected={panel === t.id} className={panel === t.id ? 'active' : ''} onClick={() => openTab('panel', t.id)}>
+                  {t.label}
+                </button>
+              ))}
+            </nav>
+            {panel === 'audit' && <Admin records={allRecords} evaluated={evaluated} assumptions={assumptions} />}
+            {panel === 'records' && (
+              <Records records={allRecords} localRecords={localRecords} setLocalRecords={setLocalRecords} includeDemo={settings.includeDemo} />
+            )}
+            {panel === 'report' && (
+              <CollectionReport records={repoRecords} primeRate={assumptions.primeRate} goToRecords={() => openTab('panel', 'records')} />
+            )}
+          </>
         )}
-        {tab === 'report' && (
-          <CollectionReport records={repoRecords} primeRate={assumptions.primeRate} goToRecords={() => setTab('records')} />
-        )}
-        {tab === 'admin' && <Admin records={allRecords} evaluated={evaluated} assumptions={assumptions} />}
-        {tab === 'methodology' && <Methodology />}
       </main>
+      <footer className="site-footer">
+        <a href="#methodology">מקורות ומתודולוגיה</a>
+      </footer>
     </div>
   );
 }
