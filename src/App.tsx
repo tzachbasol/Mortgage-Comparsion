@@ -3,7 +3,7 @@ import Builder from './components/Builder';
 import Compare from './components/Compare';
 import Records from './components/Records';
 import Methodology from './components/Methodology';
-import Admin from './components/Admin';
+import Admin, { AdminGate } from './components/Admin';
 import CollectionReport from './components/CollectionReport';
 import { isUsable } from './lib/coverage';
 import { evaluateMix } from './lib/evaluate';
@@ -19,11 +19,11 @@ type PanelTab = 'audit' | 'records' | 'report';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'builder', label: 'בניית תמהיל' },
   { id: 'compare', label: 'השוואה למשכנתא שלי' },
-  { id: 'panel', label: 'פאנל ניהול' },
+  { id: 'panel', label: '🔒 פאנל ניהול' },
 ];
 
 const PANEL_TABS: { id: PanelTab; label: string }[] = [
-  { id: 'audit', label: '🔒 ביקורת מקורות' },
+  { id: 'audit', label: 'ביקורת מקורות' },
   { id: 'records', label: 'מאגר הרשומות' },
   { id: 'report', label: 'דוח איסוף' },
 ];
@@ -180,6 +180,17 @@ export default function App() {
     </header>
   );
 
+  const footer = (
+    <footer className="site-footer">
+      <p className="disclaimer">
+        המידע באתר נועד להמחשה בלבד ואינו מהווה ייעוץ משכנתאות, ייעוץ פיננסי או המלצה לפעולה. הריביות מבוססות על הצעות שפורסמו
+        ברשתות ובפורומים, לא אומתו מול הבנקים, ועשויות להשתנות בכל עת. לפני כל החלטה יש לבדוק את ההצעה מול הבנק או מול יועץ
+        משכנתאות מוסמך.
+      </p>
+      {page !== 'methodology' && <a href="#methodology">מקורות ומתודולוגיה</a>}
+    </footer>
+  );
+
   if (page === 'methodology') {
     return (
       <div className="app">
@@ -190,6 +201,7 @@ export default function App() {
         <main>
           <Methodology />
         </main>
+        {footer}
       </div>
     );
   }
@@ -238,6 +250,8 @@ export default function App() {
           />
         )}
         {tab === 'panel' && (
+          <AdminGate>
+            {(logout) => (
           <>
             <nav className="subtabs" role="tablist" aria-label="פאנל ניהול">
               {PANEL_TABS.map((t) => (
@@ -245,6 +259,9 @@ export default function App() {
                   {t.label}
                 </button>
               ))}
+              <button className="logout" onClick={logout}>
+                יציאה
+              </button>
             </nav>
             {panel === 'audit' && <Admin records={allRecords} evaluated={evaluated} assumptions={assumptions} />}
             {panel === 'records' && (
@@ -254,11 +271,11 @@ export default function App() {
               <CollectionReport records={repoRecords} primeRate={assumptions.primeRate} goToRecords={() => openTab('panel', 'records')} />
             )}
           </>
+            )}
+          </AdminGate>
         )}
       </main>
-      <footer className="site-footer">
-        <a href="#methodology">מקורות ומתודולוגיה</a>
-      </footer>
+      {footer}
     </div>
   );
 }

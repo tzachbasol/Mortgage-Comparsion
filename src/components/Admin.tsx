@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ADMIN_HASH, checkPassword } from '../lib/admin';
 import { buildCategories, describeTrack, isReal, summarize, type CoverageEntry } from '../lib/coverage';
 import type { EvaluatedMix } from '../lib/evaluate';
@@ -25,23 +25,27 @@ function readUnlocked(): boolean {
   }
 }
 
-export default function Admin(props: Props) {
+/**
+ * Locks everything inside it (the whole management panel) behind the admin password. The unlock lasts
+ * for the browser session, so moving between the panel's sub-tabs never asks again.
+ */
+export function AdminGate({ children }: { children: (logout: () => void) => ReactNode }) {
   const [unlocked, setUnlocked] = useState(readUnlocked);
   if (!ADMIN_HASH) return <SetupNotice />;
   if (!unlocked) return <Login onUnlock={() => setUnlocked(true)} />;
-  return (
-    <AdminView
-      {...props}
-      onLogout={() => {
-        try {
-          sessionStorage.removeItem(SESSION_KEY);
-        } catch {
-          // ignore
-        }
-        setUnlocked(false);
-      }}
-    />
-  );
+  const logout = () => {
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+    } catch {
+      // ignore
+    }
+    setUnlocked(false);
+  };
+  return <>{children(logout)}</>;
+}
+
+export default function Admin(props: Props) {
+  return <AdminView {...props} />;
 }
 
 function SetupNotice() {
@@ -83,7 +87,7 @@ function Login({ onUnlock }: { onUnlock: () => void }) {
   };
   return (
     <section className="card login">
-      <h3>כניסת אדמין</h3>
+      <h3>כניסה לפאנל הניהול</h3>
       <form onSubmit={submit}>
         <label>
           סיסמה
@@ -161,7 +165,7 @@ function EntriesTable({ entries, isPrime }: { entries: CoverageEntry[]; isPrime:
   );
 }
 
-function AdminView({ records, evaluated, assumptions, onLogout }: Props & { onLogout: () => void }) {
+function AdminView({ records, evaluated, assumptions }: Props) {
   const summary = useMemo(() => summarize(records), [records]);
   const categories = useMemo(() => buildCategories(records, assumptions.primeRate), [records, assumptions.primeRate]);
   const [open, setOpen] = useState<string | null>(null);
@@ -170,10 +174,7 @@ function AdminView({ records, evaluated, assumptions, onLogout }: Props & { onLo
     <section>
       <QuickSummary records={records} primeRate={assumptions.primeRate} />
       <div className="card">
-        <div className="admin-head">
-          <h3>ביקורת מקורות (אדמין)</h3>
-          <button onClick={onLogout}>יציאה</button>
-        </div>
+        <h3>ביקורת מקורות</h3>
         <div className="tiles">
           <Tile label="רשומות אמיתיות" value={summary.realRecords} />
           <Tile label="מסלולים ברשומות" value={summary.realTracks} />
