@@ -182,3 +182,90 @@ label.file input { display: none; }
   .tabs button { white-space: nowrap; padding: 10px 10px; }
   .totals dl { grid-template-columns: 1fr 1fr; }
 }
+
+/* Mix builder: colored mix tabs, a track table, results on the side */
+:root {
+  --mix-1: #9fbde3; --mix-2: #f1a7b5; --mix-3: #f3cf6b; --mix-4: #9fdcb0; --mix-compare: #4a4f57;
+  --mix-ink: #1c2330; --mix-field: #ffffff; --res-bg: #4a4f57; --res-ink: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mix-1: #2f4d72; --mix-2: #6e3644; --mix-3: #6b5520; --mix-4: #2f5e3e; --mix-compare: #2a2f37;
+    --mix-ink: #e6e9ef; --mix-field: #12151b; --res-bg: #0e1116; --res-ink: #e6e9ef;
+  }
+}
+.mix-tabs { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-end; margin-bottom: -1px; }
+.mix-tab {
+  border: none; border-radius: 10px 10px 0 0; padding: 8px 18px; font-size: 18px; font-weight: 700;
+  color: var(--mix-ink); opacity: .75; display: flex; flex-direction: column; align-items: center; line-height: 1.2;
+}
+.mix-tab small { font-size: 12px; font-weight: 500; color: inherit; opacity: .85; }
+.mix-tab.active { opacity: 1; padding-top: 12px; }
+.mix-tab-1 { background: var(--mix-1); }
+.mix-tab-2 { background: var(--mix-2); }
+.mix-tab-3 { background: var(--mix-3); }
+.mix-tab-4 { background: var(--mix-4); }
+.mix-tab-compare { background: var(--mix-compare); color: #fff; margin-inline-start: auto; }
+.mix-panel { border-radius: 0 0 10px 10px; padding: 10px 12px 14px; margin-bottom: 12px; color: var(--mix-ink); overflow-x: auto; }
+.mix-panel-1 { background: var(--mix-1); }
+.mix-panel-2 { background: var(--mix-2); }
+.mix-panel-3 { background: var(--mix-3); }
+.mix-panel-4 { background: var(--mix-4); }
+.mix-grid { min-width: 860px; }
+.mix-row {
+  display: grid; align-items: center; gap: 8px; padding: 6px 0;
+  grid-template-columns: 22px minmax(96px, 1.2fr) minmax(150px, 1.8fr) minmax(86px, 1fr) minmax(76px, .8fr) minmax(76px, .8fr) minmax(64px, .7fr) 40px minmax(96px, 1fr) minmax(108px, 1.1fr);
+}
+.mix-head { font-size: 14px; font-weight: 600; text-align: center; padding-bottom: 2px; }
+.mix-row input, .mix-row select { width: 100%; background: var(--mix-field); text-align: center; }
+.mix-row input.manual { color: #b25e09; font-weight: 600; }
+.mix-row input:disabled { opacity: .55; }
+.mix-row label { display: block; font-size: 14px; }
+.mix-row label small { text-align: center; }
+.row-n { font-size: 20px; font-weight: 700; text-align: center; }
+.type-cell { display: flex !important; flex-direction: column; gap: 4px; }
+.every { display: flex; align-items: center; gap: 4px; font-size: 13px; }
+.every input { width: 52px; padding: 2px 4px; }
+.adv-cell { text-align: center; }
+.adv { width: 32px; height: 32px; border-radius: 50%; padding: 0; font-size: 20px; line-height: 1; font-weight: 700; }
+.mix-row .res {
+  background: var(--res-bg); color: var(--res-ink); text-align: center; padding: 8px 6px; border-radius: 6px;
+  font-variant-numeric: tabular-nums; font-weight: 600; align-self: stretch; display: flex; align-items: center; justify-content: center;
+}
+.mix-head .res { font-weight: 700; }
+.mix-foot { border-top: 1px solid rgba(0, 0, 0, .15); margin-top: 4px; }
+.mix-foot .foot-label { grid-column: 1 / 9; text-align: end; font-weight: 700; padding-inline-end: 8px; }
+.mix-foot .res { font-size: 17px; font-weight: 800; }
+.mix-detail { background: var(--card); color: var(--text); border-radius: 8px; padding: 12px; margin: 0 0 8px; }
+.mix-detail > button.link { margin-top: 8px; margin-inline-start: 0; }
+.add-track {
+  display: block; width: min(100%, 640px); margin: 10px auto 0; border-radius: 999px; background: transparent;
+  border: 2px solid currentColor; color: inherit; font-size: 17px; padding: 6px 16px;
+}
+.add-track::after { content: ' ‹'; }
+.mix-summary-title { text-align: center; margin: 18px 0 8px; font-size: 22px; }
+.mix-summary table, .mix-compare table { text-align: center; }
+.mix-summary th, .mix-summary td, .mix-compare th, .mix-compare td { text-align: center; }
+.mix-summary thead th { background: var(--mix-1); color: var(--mix-ink); font-weight: 600; }
+.mix-summary td { font-size: 17px; font-weight: 600; }
+.mix-compare th[scope='row'] { text-align: start; font-weight: 500; color: var(--muted); }
+.mix-compare td.best { color: var(--ok); font-weight: 700; }
+.mix-compare thead button { font-size: 16px; font-weight: 700; text-decoration: none; }
+
+/* Phones: each track becomes a small card with labelled fields */
+@media (max-width: 720px) {
+  .mix-tab { font-size: 15px; padding: 6px 10px; flex: 1 1 22%; }
+  .mix-tab-compare { flex-basis: 100%; border-radius: 10px; margin: 4px 0; }
+  .mix-panel { overflow-x: visible; border-radius: 10px; }
+  .mix-grid { min-width: 0; }
+  .mix-head { display: none; }
+  .mix-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid rgba(0, 0, 0, .15); padding: 10px 0; }
+  .mix-row [data-label]::before { content: attr(data-label); display: block; font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+  .row-n { grid-column: 1 / -1; text-align: start; font-size: 16px; }
+  .row-n::before { content: 'מסלול '; }
+  .type-cell { grid-column: 1 / -1; }
+  .adv-cell { grid-column: 1 / -1; text-align: start; }
+  .mix-row .res { flex-direction: column; }
+  .mix-row .res::before { font-weight: 500; }
+  .mix-foot .foot-label { grid-column: 1 / -1; text-align: start; }
+}

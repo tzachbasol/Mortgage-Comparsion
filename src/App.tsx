@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Builder from './components/Builder';
 import Compare from './components/Compare';
 import Records from './components/Records';
@@ -25,6 +25,29 @@ const DEFAULT_MIX: MixTrack[] = [
   { id: 'b', type: 'fixed_unlinked', termYears: 20, amount: 400000 },
   { id: 'c', type: 'variable_linked', termYears: 25, amount: 400000, changeEveryYears: 5 },
 ];
+
+/** Number of mixes the builder offers side by side (tabs "תמהיל 1–4"). */
+const MIX_COUNT = 4;
+
+const blankMix = (n: number): MixTrack[] => [
+  { id: `m${n}a`, type: 'prime', termYears: 30, amount: 0 },
+  { id: `m${n}b`, type: 'fixed_unlinked', termYears: 20, amount: 0 },
+  { id: `m${n}c`, type: 'variable_unlinked', termYears: 25, amount: 0, changeEveryYears: 5 },
+];
+
+/** The first mix keeps whatever the single-mix version of the site stored. */
+function initialMixes(): MixTrack[][] {
+  let first = DEFAULT_MIX;
+  try {
+    const raw = localStorage.getItem('mix');
+    if (raw) first = JSON.parse(raw) as MixTrack[];
+  } catch {
+    // storage unavailable – start from the default
+  }
+  return [first, ...Array.from({ length: MIX_COUNT - 1 }, (_, i) => blankMix(i + 2))];
+}
+
+const INITIAL_MIXES = initialMixes();
 
 const DEFAULT_SETTINGS: MatchSettings = {
   termToleranceYears: 3,
@@ -62,7 +85,16 @@ export default function App() {
   const [repoRecords, setRepoRecords] = useState<OfferRecord[]>([]);
   const [demoRecords, setDemoRecords] = useState<OfferRecord[]>([]);
   const [localRecords, setLocalRecords] = usePersistentState<OfferRecord[]>('localRecords', []);
-  const [mix, setMix] = usePersistentState<MixTrack[]>('mix', DEFAULT_MIX);
+  const [mixes, setMixes] = usePersistentState<MixTrack[][]>('mixes', INITIAL_MIXES);
+  /** 0–3: the mix being edited; 'compare': the side-by-side view. */
+  const [mixView, setMixView] = usePersistentState<number | 'compare'>('mixView', 0);
+  const [activeMix, setActiveMix] = usePersistentState<number>('activeMix', 0);
+  const mix = mixes[activeMix] ?? [];
+  const setMix = useCallback(
+    (m: MixTrack[] | ((prev: MixTrack[]) => MixTrack[])) =>
+      setMixes((all) => all.map((x, i) => (i === activeMix ? (typeof m === 'function' ? m(x) : m) : x))),
+    [activeMix, setMixes],
+  );
   const [current, setCurrent] = usePersistentState<CurrentTrack[]>('currentMortgage', []);
   const [settings, setSettings] = usePersistentState<MatchSettings>('matchSettings', DEFAULT_SETTINGS);
   const [assumptions, setAssumptions] = usePersistentState<EconomicAssumptions>('assumptions', DEFAULT_ASSUMPTIONS);
@@ -77,10 +109,15 @@ export default function App() {
     [repoRecords, localRecords, demoRecords],
   );
   const realCount = repoRecords.length + localRecords.length;
-  const evaluated = useMemo(
-    () => evaluateMix(mix, allRecords, settings, assumptions),
-    [mix, allRecords, settings, assumptions],
+  const allEvaluated = useMemo(
+    () => mixes.map((m) => evaluateMix(m, allRecords, settings, assumptions)),
+    [mixes, allRecords, settings, assumptions],
   );
+  const evaluated = allEvaluated[activeMix] ?? evaluateMix([], allRecords, settings, assumptions);
+  const selectMixView = (v: number | 'compare') => {
+    setMixView(v);
+    if (v !== 'compare') setActiveMix(v);
+  };
 
   return (
     <div className="app">
@@ -110,6 +147,9 @@ export default function App() {
             mix={mix}
             setMix={setMix}
             evaluated={evaluated}
+            allEvaluated={allEvaluated}
+            mixView={mixView}
+            setMixView={selectMixView}
             settings={settings}
             setSettings={setSettings}
             assumptions={assumptions}

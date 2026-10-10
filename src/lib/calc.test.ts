@@ -29,3 +29,20 @@ describe('amortize', () => {
     expect(a.totalPaid).toBeCloseTo(b.totalPaid, 4);
   });
 });
+
+describe('amortize: equal principal and the interest / CPI split', () => {
+  it('equal principal starts higher, falls every month and costs less interest than Spitzer', () => {
+    const ep = amortize(600_000, 4.8, 240, 'fixed_unlinked', 0, 'equal_principal');
+    const sp = amortize(600_000, 4.8, 240, 'fixed_unlinked', 0);
+    expect(ep.firstPayment).toBeCloseTo(600_000 / 240 + 600_000 * 0.004, 4);
+    expect(ep.maxPayment).toBeCloseTo(ep.firstPayment, 6);
+    expect(ep.totalInterest).toBeLessThan(sp.totalInterest);
+    expect(ep.totalPaid).toBeCloseTo(600_000 + ep.totalInterest, 4);
+  });
+  it('splits the cost of a linked loan into interest and indexation', () => {
+    const r = amortize(400_000, 3, 180, 'fixed_linked', 2.5);
+    expect(r.totalIndexation).toBeGreaterThan(0);
+    expect(r.totalInterest + r.totalIndexation).toBeCloseTo(r.totalInterestAndIndexation, 4);
+    expect(amortize(400_000, 3, 180, 'fixed_unlinked', 2.5).totalIndexation).toBe(0);
+  });
+});

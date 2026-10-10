@@ -13,6 +13,13 @@ export const TRACK_LABELS: Record<TrackType, string> = {
   variable_linked: 'משתנה צמודה',
 };
 
+export type RepaymentMethod = 'spitzer' | 'equal_principal';
+
+export const REPAYMENT_LABELS: Record<RepaymentMethod, string> = {
+  spitzer: 'שפיצר',
+  equal_principal: 'קרן שווה',
+};
+
 export const LINKED_TRACKS: ReadonlySet<TrackType> = new Set(['fixed_linked', 'variable_linked']);
 export const VARIABLE_TRACKS: ReadonlySet<TrackType> = new Set(['variable_unlinked', 'variable_linked']);
 
@@ -126,6 +133,10 @@ export interface MixTrack {
   changeEveryYears?: number;
   /** If set, overrides the rate derived from records. Prime: margin; others: total rate. */
   manualRate?: number;
+  /** Repayment schedule; שפיצר when unset. */
+  method?: RepaymentMethod;
+  /** Linked tracks: expected annual CPI for this track, overriding the global assumption. */
+  inflation?: number;
 }
 
 /** A track of the user's existing mortgage. */
