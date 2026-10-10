@@ -1,4 +1,4 @@
-import { amortize, sumResults, type AmortizationResult, type MixTotals } from './calc';
+import { EMPTY_RESULT, amortize, sumResults, type AmortizationResult, type MixTotals } from './calc';
 import { findMatches, stats, type Match, type MatchStats } from './match';
 import type { EconomicAssumptions, MatchSettings, MixTrack, OfferRecord } from './types';
 
@@ -44,8 +44,8 @@ export function evaluateMix(
       usedValue === undefined ? undefined : track.type === 'prime' ? assumptions.primeRate + usedValue : usedValue;
     const result =
       totalRate === undefined
-        ? { firstPayment: 0, maxPayment: 0, totalPaid: 0, totalInterestAndIndexation: 0 }
-        : amortize(track.amount, totalRate, track.termYears * 12, track.type, assumptions.inflation);
+        ? { ...EMPTY_RESULT }
+        : amortize(track.amount, totalRate, track.termYears * 12, track.type, track.inflation ?? assumptions.inflation, track.method);
     return { track, matches, stats: s, usedValue, totalRate, rateSource, result };
   });
   const priced = tracks.filter((t) => t.totalRate !== undefined);
