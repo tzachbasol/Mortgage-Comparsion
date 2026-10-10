@@ -237,7 +237,11 @@ label.file input { display: none; }
 .mix-foot .foot-label { grid-column: 1 / 9; text-align: end; font-weight: 700; padding-inline-end: 8px; }
 .mix-foot .res { font-size: 17px; font-weight: 800; }
 .mix-detail { background: var(--card); color: var(--text); border-radius: 8px; padding: 12px; margin: 0 0 8px; }
-.mix-detail > button.link { margin-top: 8px; margin-inline-start: 0; }
+.detail-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
+.detail-actions button.link.danger { margin-inline-start: auto; }
+.mix-row input.missing { border-color: var(--bad); }
+.mix-row input.missing::placeholder { color: var(--bad); }
+.foot-of { font-weight: 400; font-size: 13px; }
 .add-track {
   display: block; width: min(100%, 640px); margin: 10px auto 0; border-radius: 999px; background: transparent;
   border: 2px solid currentColor; color: inherit; font-size: 17px; padding: 6px 16px;
